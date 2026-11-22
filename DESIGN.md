@@ -189,6 +189,25 @@ defines the interface between that and the upload and download endpoints.
 - **The upload path stays open to chunked or resumable upload,** which
   Jiggle may need.
 
+## Testing
+
+Servers built on Gizmo are tested end to end over HTTP, with `jmaptest`.
+Gizmo's own suite does the same against a small server kept for the
+purpose.
+
+Juke and TaskMaster move to Gizmo before Jiggle is written, so some of what
+Jiggle needs will have no real consumer for a while.  Gizmo's own suite
+covers those, so that they aren't designed blind:
+
+- **Large streaming uploads.**
+- **State changes and push from a writer outside any request.**
+- **A custom method that creates objects,** with per-item results and
+  creation ids used later in the request.
+- **Recreating a destroyed id.**
+- **The application deciding whether an upload is still wanted.**
+- **Awkward ids:** ones that begin with a digit, are all digits, begin with
+  zero, or read as a number in exponent notation, such as `123e456789`.
+
 ## Plan of work
 
 1. **Core and HTTP.**  `jmap`, `auth`, `push`, `httpd` and `jmaptest`, with
