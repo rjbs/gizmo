@@ -114,6 +114,12 @@ func (c *Call) SetCreatedID(creationID, id string) {
 	c.req.createdIDs[creationID] = id
 }
 
+// ForgetCreatedID takes back a SetCreatedID, for a method that undoes a
+// creation it had made before it finishes.
+func (c *Call) ForgetCreatedID(creationID string) {
+	delete(c.req.createdIDs, creationID)
+}
+
 // ResolveID maps a creation reference, "#" and a creation id, to the id it
 // stands for.  Any other string is returned as it is.  The boolean is false
 // only for a creation reference that nothing in the request has created.

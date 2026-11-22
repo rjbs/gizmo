@@ -14,7 +14,8 @@ const testCapability = "https://gizmo.example/test"
 // testProcessor has a few methods under testCapability:
 //
 //   - Test/make creates an "object" for each entry in its create argument,
-//     recording creation ids, and answers like a /set would.
+//     recording creation ids, and answers like a /set would.  It thinks
+//     better of any whose id is "regret".
 //   - Test/ids answers with the ids it was given, creation references
 //     resolved.
 //   - Test/twice answers and then adds a second response, Test/again.
@@ -38,6 +39,10 @@ func testProcessor() *Processor {
 		created := map[string]any{}
 		for cid, o := range a.Create {
 			c.SetCreatedID(cid, o.ID)
+			if o.ID == "regret" {
+				c.ForgetCreatedID(cid)
+				continue
+			}
 			created[cid] = map[string]any{"id": o.ID}
 		}
 		return map[string]any{"created": created}, nil
@@ -258,6 +263,10 @@ func TestCreationIDs(t *testing.T) {
 	checkResponses(t, "an id made by one call, used by the next",
 		`[["Test/make", {"create": {"k": {"id": "0042"}}}, "0"], ["Test/ids", {"ids": ["#k", "plain"]}, "1"]]`,
 		`[["Test/make", {"created": {"k": {"id": "0042"}}}, "0"], ["Test/ids", {"ids": ["0042", "plain"]}, "1"]]`)
+	checkResponses(t, "a creation id whose object was unmade",
+		`[["Test/make", {"create": {"k": {"id": "regret"}}}, "0"], ["Test/ids", {"ids": ["#k"]}, "1"]]`,
+		`[["Test/make", {"created": {}}, "0"],
+		  ["error", {"type": "invalidArguments", "description": "nothing was created as #k"}, "1"]]`)
 	checkResponses(t, "a creation id nothing made",
 		`[["Test/ids", {"ids": ["#k"]}, "0"]]`,
 		`[["error", {"type": "invalidArguments", "description": "nothing was created as #k"}, "0"]]`)
