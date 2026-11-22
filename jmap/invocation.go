@@ -66,7 +66,8 @@ type Response struct {
 
 // ParseRequest decodes the body of an API request.  A body that isn't JSON is
 // a notJSON error, and JSON that isn't a Request object is notRequest.
-// Members of the object that RFC 8620 doesn't define are ignored.
+// Members of the object that RFC 8620 doesn't define are ignored, as its
+// §3.3 requires, so that later specifications can add some.
 func ParseRequest(body []byte) (*Request, *RequestError) {
 	if !json.Valid(body) {
 		return nil, &RequestError{Type: ReqErrNotJSON, Status: 400, Detail: "the request body is not valid JSON"}
