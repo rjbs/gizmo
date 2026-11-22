@@ -206,6 +206,15 @@ Servers built on Gizmo are tested end to end over HTTP, with `jmaptest`.
 Gizmo's own suite does the same against a small server kept for the
 purpose.
 
+`jmaptest` is a JMAP client built for tests, after
+[JMAP::Tester](https://github.com/fastmail/JMAP-Tester), and keeps its
+vocabulary.  A *sentence* is one method response, and a *paragraph* is
+the run of sentences answering one method call.  Asking for the single
+sentence of a response, or the sentence with some name, fails the test if
+the response isn't shaped that way.  The sentence for a `/set` can give
+the id made for a creation id, and can fail the test, showing the errors,
+if anything was not created, updated or destroyed.
+
 Juke and TaskMaster move to Gizmo before Jiggle is written, so some of what
 Jiggle needs will have no real consumer for a while.  Gizmo's own suite
 covers those, so that they aren't designed blind:
