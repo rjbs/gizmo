@@ -219,6 +219,12 @@ func TestEventSource(t *testing.T) {
 	checkJSON(t, "closeafter=state waits for a change", once.NextState(), `{"kitchen": {"Cookie": "5"}}`)
 	once.AssertClosed()
 
+	held := e.alice.Listen("types=Cookie&closeafter=state&ping=300")
+	if ev := held.Next(); ev.Type != "ping" || ev.Data != `{"interval":300}` {
+		t.Errorf("closeafter=state with pings should open with a ping, but got %q: %s", ev.Type, ev.Data)
+	}
+	held.AssertQuiet()
+
 	pinged := e.alice.Listen("types=Biscuit&closeafter=no&ping=1")
 	if ev := pinged.Next(); ev.Type != "ping" || ev.Data != `{"interval":1}` {
 		t.Errorf("expected a ping, but got %q: %s", ev.Type, ev.Data)

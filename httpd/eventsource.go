@@ -101,8 +101,12 @@ func (s *Server) handleEventSource(w http.ResponseWriter, r *http.Request) {
 	// The current state is the most useful first byte, since a client
 	// that fell behind while disconnected learns so immediately.  A
 	// closeafter=state client wants to be held until a real change, so
-	// it gets a comment instead.  -- claude, 2026-10-02
-	if closeAfterState || !sendState(initial) {
+	// it gets a ping instead, or a comment if it asked for no pings.
+	// -- claude, 2026-10-02
+	switch {
+	case closeAfterState && pingSeconds > 0:
+		sendPing()
+	case closeAfterState || !sendState(initial):
 		fmt.Fprint(w, ": hello\n\n")
 		flusher.Flush()
 	}
