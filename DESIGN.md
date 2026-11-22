@@ -86,6 +86,9 @@ The names are provisional.
   capability isn't in the request's `using` is an unknown method.
 - **Arguments stay raw JSON until the method decodes them,** so a closed
   type can decode into a struct and an open one into a map.
+- **A method call may produce more than one response.**  Nothing needs
+  this yet, but `/copy` will, and allowing it later would change the
+  signature of every method.
 - **Creation ids are kept for the whole request** and resolved by Gizmo, not
   by each method.  Any method that creates objects, standard or custom, can
   record them, so that a later call in the request can refer to them.
@@ -154,6 +157,9 @@ two.
 - **`jmap` and `std` don't know this.**  They ask the application to
   resolve an `accountId`; only `sqlitekit` assumes a database is an
   account.
+- **An account the caller may not use looks like one that doesn't exist.**
+  Both are `accountNotFound`, so a caller can't learn which accounts
+  exist.  A call that names no account is `invalidArguments`.
 - **What belongs to a user and not an account,** such as credentials and
   the list of a user's accounts, lives outside any account's database.
 
