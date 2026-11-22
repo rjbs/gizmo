@@ -132,7 +132,12 @@ an epoch added.
   record the modseq of their creation and of their last change.
 - **The state string** is an epoch and the type's `highest_modseq`.  The
   epoch is a random token made when the database is created, so a client's
-  state from a rebuilt or restored database is recognized as foreign.
+  state from before a database was rebuilt is recognized as foreign.
+- **Restoring a backup calls for a new epoch.**  A restored database keeps
+  its epoch and has gone back in time.  Once its modseqs pass the ones
+  clients hold, those clients would be given wrong changes and no error.
+  `sqlitekit` can give a database a new epoch, and whatever restores one
+  should ask it to.
 - **Tombstones live in their own table.**  A destroy deletes the object's
   row and records a tombstone, so tables of live objects hold only live
   objects.
@@ -237,5 +242,9 @@ The exception is Jiggle's existing photo ids, which are in published URLs.
   type prefix, as Juke's ids do, is open.
 - **A `/changes` state above the current one.**  Ix answers
   `invalidArguments`; Juke and TaskMaster answer `cannotCalculateChanges`.
+  Proposed: `cannotCalculateChanges`, because the likely cause is a
+  restored database, and the client's remedy is to fetch everything
+  again.  `invalidArguments` would be kept for a state that is missing or
+  isn't a state string at all.
 - **Tombstones in their own table, or in the object's row.**  A separate
   table for now; this may be revisited.
