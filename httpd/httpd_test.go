@@ -126,12 +126,12 @@ func TestAPI(t *testing.T) {
 		t.Errorf("the first cookie's id is %q, not the string 001", id)
 	}
 	checkJSON(t, "the one that failed", set.NotCreated("b"),
-		`{"type": "invalidProperties", "description": "a cookie needs a flavor", "properties": ["flavor"]}`)
+		`{"type": "invalidProperties", "description": "these properties can't be set, or not to that", "properties": ["flavor"]}`)
 
 	r := e.alice.Request(
 		jmaptest.Do("Cookie/set", jmaptest.Args{"create": jmaptest.Args{"k": jmaptest.Args{"flavor": "oat"}}}),
-		jmaptest.Do("Cookie/get", jmaptest.Args{"ids": []string{"#k"}}),
-		jmaptest.Do("Cookie/get", jmaptest.Args{"#ids": jmaptest.Ref("1", "Cookie/get", "/list/*/id")}),
+		jmaptest.Do("Cookie/get", jmaptest.Args{"ids": []string{"#k"}, "properties": []string{"flavor"}}),
+		jmaptest.Do("Cookie/get", jmaptest.Args{"#ids": jmaptest.Ref("1", "Cookie/get", "/list/*/id"), "properties": []string{"flavor"}}),
 	)
 	r.Sentence(0).AsSet().AssertNoErrors()
 	checkJSON(t, "a cookie got by its creation id", r.Sentence(1).Args["list"], `[{"id": "002", "flavor": "oat"}]`)
@@ -192,7 +192,8 @@ func TestEventSource(t *testing.T) {
 	kitchen.Bake("ginger")
 
 	all := e.alice.Listen("types=*&closeafter=no&ping=0")
-	checkJSON(t, "the states on connecting", all.NextState(), `{"kitchen": {"Cookie": "1"}, "cellar": {"Cookie": "0"}}`)
+	checkJSON(t, "the states on connecting", all.NextState(),
+		`{"kitchen": {"Cookie": "1", "Jar": "0"}, "cellar": {"Cookie": "0", "Jar": "0"}}`)
 	all.AssertQuiet()
 
 	e.alice.Request(jmaptest.Do("Cookie/set", jmaptest.Args{"create": jmaptest.Args{"a": jmaptest.Args{"flavor": "oat"}}}))
@@ -203,7 +204,7 @@ func TestEventSource(t *testing.T) {
 	all.AssertQuiet()
 
 	limited := e.cellar.Listen("types=*&closeafter=no&ping=0")
-	checkJSON(t, "a token sees only its accounts", limited.NextState(), `{"cellar": {"Cookie": "1"}}`)
+	checkJSON(t, "a token sees only its accounts", limited.NextState(), `{"cellar": {"Cookie": "1", "Jar": "0"}}`)
 	kitchen.Bake("fig")
 	limited.AssertQuiet()
 	checkJSON(t, "while the other sees it", all.NextState(), `{"kitchen": {"Cookie": "3"}}`)
