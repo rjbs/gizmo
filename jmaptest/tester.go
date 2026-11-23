@@ -92,12 +92,21 @@ func Ref(resultOf, name, path string) Args {
 
 func (c *Tester) do(method, path, contentType string, body []byte) (*http.Response, []byte) {
 	c.T.Helper()
-	req, err := http.NewRequest(method, c.BaseURL+path, bytes.NewReader(body))
+	return c.send(method, path, contentType, bytes.NewReader(body), nil)
+}
+
+// send makes a request whose body is a stream, with any further headers.
+func (c *Tester) send(method, path, contentType string, body io.Reader, header map[string]string) (*http.Response, []byte) {
+	c.T.Helper()
+	req, err := http.NewRequest(method, c.BaseURL+path, body)
 	if err != nil {
 		c.T.Fatalf("%s %s: %v", method, path, err)
 	}
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
+	}
+	for name, value := range header {
+		req.Header.Set(name, value)
 	}
 	if c.Authorization != "" {
 		req.Header.Set("Authorization", c.Authorization)
@@ -223,7 +232,20 @@ type Uploaded struct {
 // Upload sends data to the upload endpoint of the tester's account.
 func (c *Tester) Upload(contentType string, data []byte) *Uploaded {
 	c.T.Helper()
-	resp, body := c.do("POST", "/jmap/upload/"+c.AccountID+"/", contentType, data)
+	return c.uploaded(c.do("POST", "/jmap/upload/"+c.AccountID+"/", contentType, data))
+}
+
+// UploadStream sends a stream to the upload endpoint of the tester's
+// account, without saying beforehand how long it is.
+func (c *Tester) UploadStream(contentType string, data io.Reader) *Uploaded {
+	c.T.Helper()
+	// A reader that is only a reader keeps the client from learning the
+	// length, so the upload is sent in chunks.
+	return c.uploaded(c.send("POST", "/jmap/upload/"+c.AccountID+"/", contentType, struct{ io.Reader }{data}, nil))
+}
+
+func (c *Tester) uploaded(resp *http.Response, body []byte) *Uploaded {
+	c.T.Helper()
 	up := &Uploaded{Status: resp.StatusCode, Body: body}
 	if resp.StatusCode == 201 {
 		var answer struct {
@@ -250,11 +272,22 @@ type Downloaded struct {
 // given name and, unless it is empty, with the given content type.
 func (c *Tester) Download(blobID, name, contentType string) *Downloaded {
 	c.T.Helper()
+	return c.DownloadRange(blobID, name, contentType, "")
+}
+
+// DownloadRange is Download for part of a blob, given as the value of a
+// Range header, such as "bytes=0-99".
+func (c *Tester) DownloadRange(blobID, name, contentType, byteRange string) *Downloaded {
+	c.T.Helper()
 	path := "/jmap/download/" + c.AccountID + "/" + blobID + "/" + name
 	if contentType != "" {
 		path += "?type=" + contentType
 	}
-	resp, body := c.do("GET", path, "", nil)
+	header := map[string]string{}
+	if byteRange != "" {
+		header["Range"] = byteRange
+	}
+	resp, body := c.send("GET", path, "", http.NoBody, header)
 	return &Downloaded{Status: resp.StatusCode, Header: resp.Header, Body: body}
 }
 

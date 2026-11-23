@@ -1,6 +1,7 @@
 // Package bakery is a small JMAP server kept for Gizmo's own tests, in the
 // way that Ix kept Bakesale.  It serves two types, Cookie and Jar, from
-// memory, by way of the std package, and stores blobs the same way.
+// memory, by way of the std package, and keeps blobs as files in a temporary
+// directory, which Close removes.
 //
 // It has two users.  alice owns the accounts "kitchen" and "cellar", with
 // "kitchen" her primary; requests with no token are hers.  bob owns "bobs".
@@ -9,8 +10,6 @@
 package bakery
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"io"
 	"log/slog"
@@ -43,12 +42,13 @@ type Bakery struct {
 	AliceToken, CellarToken, BobToken string
 
 	accounts map[string]*Account
+	pantry   *pantry
 }
 
 // New returns a Bakery with nothing baked.  The limits are those the server
 // advertises and enforces; zero fields take the defaults.
 func New(limits jmap.Limits) *Bakery {
-	b := &Bakery{Broker: push.NewBroker(), Processor: jmap.NewProcessor(), accounts: map[string]*Account{}}
+	b := &Bakery{Broker: push.NewBroker(), Processor: jmap.NewProcessor(), accounts: map[string]*Account{}, pantry: newPantry()}
 	b.AliceToken, _ = auth.NewToken(TokenPrefix)
 	b.CellarToken, _ = auth.NewToken(TokenPrefix)
 	b.BobToken, _ = auth.NewToken(TokenPrefix)
@@ -116,8 +116,7 @@ func New(limits jmap.Limits) *Bakery {
 		Broker:       b.Broker,
 		Limits:       limits,
 		Capabilities: map[string]any{Capability: map[string]any{}},
-		Download:     http.HandlerFunc(b.download),
-		Upload:       http.HandlerFunc(b.upload),
+		Blobs:        b.pantry,
 		Logger:       b.Processor.Logger,
 	})
 	b.Handler = auth.Bearer(dir, func(*http.Request, string) {}, auth.Loopback(dir, srv))
@@ -126,38 +125,3 @@ func New(limits jmap.Limits) *Bakery {
 
 // Account returns an account's data.
 func (b *Bakery) Account(id string) *Account { return b.accounts[id] }
-
-func (b *Bakery) upload(w http.ResponseWriter, r *http.Request) {
-	a := b.accounts[r.PathValue("accountId")]
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "could not read the upload", http.StatusBadRequest)
-		return
-	}
-	sum := sha256.Sum256(data)
-	id := "B" + hex.EncodeToString(sum[:8])
-	contentType := r.Header.Get("Content-Type")
-	a.mu.Lock()
-	a.d.blobs[id] = blob{data: data, contentType: contentType}
-	a.mu.Unlock()
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]any{"accountId": a.id, "blobId": id, "type": contentType, "size": len(data)})
-}
-
-func (b *Bakery) download(w http.ResponseWriter, r *http.Request) {
-	a := b.accounts[r.PathValue("accountId")]
-	a.mu.Lock()
-	bl, ok := a.d.blobs[r.PathValue("blobId")]
-	a.mu.Unlock()
-	if !ok {
-		http.NotFound(w, r)
-		return
-	}
-	contentType := bl.contentType
-	if t := r.URL.Query().Get("type"); t != "" {
-		contentType = t
-	}
-	w.Header().Set("Content-Type", contentType)
-	w.Write(bl.data)
-}

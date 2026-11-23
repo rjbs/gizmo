@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/rjbs/gizmo/auth"
+	"github.com/rjbs/gizmo/blob"
 	"github.com/rjbs/gizmo/jmap"
 	"github.com/rjbs/gizmo/push"
 )
@@ -61,8 +62,11 @@ type Config struct {
 	// Broker feeds the event source.
 	Broker *push.Broker
 
-	// Limits are advertised in the core capability.  The Server enforces
-	// MaxSizeRequest and MaxCallsInRequest.
+	// Limits are advertised in the core capability.  The Server keeps to
+	// those that are its to keep: the size of a request and of an upload,
+	// the calls in a request, and how many requests and uploads one user
+	// has under way at once.  A request or upload past that number waits.
+	// The limits on objects are for whatever answers /get and /set.
 	Limits jmap.Limits
 
 	// Capabilities is the session's capabilities object, apart from core,
@@ -72,12 +76,9 @@ type Config struct {
 	// Collations are the collation algorithms advertised.
 	Collations []string
 
-	// Download and Upload serve the blob endpoints, once the Server has
-	// checked that the account named is one the caller may use.  The
-	// account, blob id and name are path values of the request: accountId,
-	// blobId and name.  A nil handler means there are no blobs to be had.
-	Download http.Handler
-	Upload   http.Handler
+	// Blobs keeps the blobs that the upload and download endpoints serve.
+	// If nil, there are none, and both endpoints answer 404.
+	Blobs blob.Store
 
 	Logger *slog.Logger
 }
@@ -86,6 +87,8 @@ type Config struct {
 type Server struct {
 	cfg Config
 	mux *http.ServeMux
+
+	requests, uploads *limiter
 }
 
 func New(cfg Config) *Server {
@@ -96,7 +99,11 @@ func New(cfg Config) *Server {
 		cfg.Collations = []string{}
 	}
 	cfg.Limits = cfg.Limits.WithDefaults()
-	s := &Server{cfg: cfg, mux: http.NewServeMux()}
+	s := &Server{
+		cfg: cfg, mux: http.NewServeMux(),
+		requests: newLimiter(cfg.Limits.MaxConcurrentRequests),
+		uploads:  newLimiter(cfg.Limits.MaxConcurrentUpload),
+	}
 	cfg.Processor.SessionState = s.sessionState
 	cfg.Processor.MaxCallsInRequest = cfg.Limits.MaxCallsInRequest
 
@@ -104,8 +111,8 @@ func New(cfg Config) *Server {
 	s.mux.HandleFunc("GET /jmap/session", s.handleSession)
 	s.mux.HandleFunc("POST /jmap/api", s.handleAPI)
 	s.mux.HandleFunc("GET /jmap/eventsource", s.handleEventSource)
-	s.mux.Handle("GET /jmap/download/{accountId}/{blobId}/{name}", s.blobs(cfg.Download))
-	s.mux.Handle("POST /jmap/upload/{accountId}/", s.blobs(cfg.Upload))
+	s.mux.Handle("GET /jmap/download/{accountId}/{blobId}/{name}", s.blobs(s.handleDownload))
+	s.mux.Handle("POST /jmap/upload/{accountId}/", s.blobs(s.handleUpload))
 	return s
 }
 
@@ -228,6 +235,12 @@ func (s *Server) handleSession(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleAPI(w http.ResponseWriter, r *http.Request) {
+	release, ok := s.requests.acquire(r.Context(), user(r.Context()).ID)
+	if !ok {
+		return
+	}
+	defer release()
+
 	limit := s.cfg.Limits.MaxSizeRequest
 	body, err := io.ReadAll(io.LimitReader(r.Body, limit+1))
 	if err != nil {
@@ -259,14 +272,14 @@ func (s *Server) handleAPI(w http.ResponseWriter, r *http.Request) {
 // blobs guards a blob endpoint: the account named in the path must be one
 // the caller may use, and one it may not use is no more found than one that
 // doesn't exist.
-func (s *Server) blobs(next http.Handler) http.Handler {
+func (s *Server) blobs(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("accountId")
-		if next == nil || !user(r.Context()).HasAccount(id) || s.cfg.Account(id) == nil {
+		if s.cfg.Blobs == nil || !user(r.Context()).HasAccount(id) || s.cfg.Account(id) == nil {
 			http.NotFound(w, r)
 			return
 		}
-		next.ServeHTTP(w, r)
+		next(w, r)
 	})
 }
 

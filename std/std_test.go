@@ -26,6 +26,7 @@ type kitchen struct {
 func newKitchen(t *testing.T, limits jmap.Limits) *kitchen {
 	t.Helper()
 	b := bakery.New(limits)
+	t.Cleanup(b.Close)
 	srv := httptest.NewServer(b.Handler)
 	t.Cleanup(srv.Close)
 	c := jmaptest.New(t, srv.URL, jmap.CoreCapability, bakery.Capability)

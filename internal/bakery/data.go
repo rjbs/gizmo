@@ -30,7 +30,6 @@ type data struct {
 	graves  []grave
 	modseq  map[string]int // by type
 	nextID  int
-	blobs   map[string]blob
 }
 
 type cookie struct {
@@ -58,13 +57,8 @@ type grave struct {
 	created, modified int
 }
 
-type blob struct {
-	data        []byte
-	contentType string
-}
-
 func newData() *data {
-	return &data{cookies: map[string]*cookie{}, jars: map[string]*jar{}, modseq: map[string]int{}, blobs: map[string]blob{}}
+	return &data{cookies: map[string]*cookie{}, jars: map[string]*jar{}, modseq: map[string]int{}}
 }
 
 func (d *data) clone() *data {
@@ -74,7 +68,6 @@ func (d *data) clone() *data {
 		graves:  slices.Clone(d.graves),
 		modseq:  maps.Clone(d.modseq),
 		nextID:  d.nextID,
-		blobs:   maps.Clone(d.blobs),
 	}
 	for id, c := range d.cookies {
 		cc := *c

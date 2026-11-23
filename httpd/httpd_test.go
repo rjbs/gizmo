@@ -1,8 +1,11 @@
 package httpd_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http/httptest"
 	"reflect"
 	"strings"
@@ -29,6 +32,7 @@ type env struct {
 func newEnv(t *testing.T, limits jmap.Limits) *env {
 	t.Helper()
 	b := bakery.New(limits)
+	t.Cleanup(b.Close)
 	srv := httptest.NewServer(b.Handler)
 	t.Cleanup(srv.Close)
 
@@ -154,17 +158,65 @@ func TestAPI(t *testing.T) {
 	checkJSON(t, "too large a request", problem["limit"], `"maxSizeRequest"`)
 }
 
+// checkDownload checks a download's status, its body, and its content type.
+func checkDownload(t *testing.T, name string, d *jmaptest.Downloaded, wantStatus int, wantBody, wantType string) {
+	t.Helper()
+	if d.Status != wantStatus || string(d.Body) != wantBody || d.Header.Get("Content-Type") != wantType {
+		t.Errorf("%s: got status %d, %q, type %q; want %d, %q, type %q",
+			name, d.Status, d.Body, d.Header.Get("Content-Type"), wantStatus, wantBody, wantType)
+	}
+}
+
 func TestBlobs(t *testing.T) {
-	e := newEnv(t, jmap.Limits{})
+	e := newEnv(t, jmap.Limits{MaxSizeUpload: 32})
 
 	up := e.alice.Upload("text/plain", []byte("flour, sugar, butter"))
 	if up.Status != 201 || up.Size != 20 || up.Type != "text/plain" {
 		t.Fatalf("upload: got status %d, size %d, type %q: %s", up.Status, up.Size, up.Type, up.Body)
 	}
 	down := e.alice.Download(up.BlobID, "recipe.txt", "")
-	if down.Status != 200 || string(down.Body) != "flour, sugar, butter" {
-		t.Errorf("download: got status %d and %q", down.Status, down.Body)
+	checkDownload(t, "the whole blob", down, 200, "flour, sugar, butter", "text/plain")
+	if got := down.Header.Get("Cache-Control"); !strings.Contains(got, "immutable") {
+		t.Errorf("a blob never changes, and the download should say so: Cache-Control is %q", got)
 	}
+	checkDownload(t, "under another type", e.alice.Download(up.BlobID, "recipe.txt", "text/x-recipe"), 200, "flour, sugar, butter", "text/x-recipe")
+	checkDownload(t, "a part of it", e.alice.DownloadRange(up.BlobID, "recipe.txt", "", "bytes=7-11"), 206, "sugar", "text/plain")
+	checkDownload(t, "the end of it", e.alice.DownloadRange(up.BlobID, "recipe.txt", "", "bytes=-6"), 206, "butter", "text/plain")
+	if got := e.alice.DownloadRange(up.BlobID, "recipe.txt", "", "bytes=50-60").Status; got != 416 {
+		t.Errorf("a part past the end: got status %d, not 416", got)
+	}
+	if got := e.alice.Download("Bnothing", "x", "").Status; got != 404 {
+		t.Errorf("a blob that isn't there: got status %d, not 404", got)
+	}
+
+	again := e.alice.UploadStream("text/plain", strings.NewReader("flour, sugar, butter"))
+	if again.Status != 201 || again.BlobID != up.BlobID {
+		t.Errorf("the same bytes, sent as a stream: got status %d and blob %q, want %q", again.Status, again.BlobID, up.BlobID)
+	}
+
+	// checkRefused checks that an upload is turned down, and leaves
+	// nothing of itself behind.
+	stored := len(e.bakery.Files())
+	checkRefused := func(name string, up *jmaptest.Uploaded, want int) {
+		t.Helper()
+		if up.Status != want {
+			t.Errorf("%s: got status %d, want %d: %s", name, up.Status, want, up.Body)
+		}
+		if now := len(e.bakery.Files()); now != stored {
+			t.Errorf("%s: the upload left a file behind: %v", name, e.bakery.Files())
+		}
+	}
+	exactly := strings.Repeat("x", 32)
+	if at := e.alice.Upload("text/plain", []byte(exactly)); at.Status != 201 || at.Size != 32 {
+		t.Errorf("an upload of exactly the limit: got status %d, size %d", at.Status, at.Size)
+	}
+	if at := e.alice.UploadStream("text/plain", strings.NewReader(exactly+"!")); at.Status != 413 {
+		t.Errorf("a stream one byte over the limit: got status %d", at.Status)
+	}
+	stored = len(e.bakery.Files())
+	checkRefused("too large, and saying so", e.alice.Upload("text/plain", []byte(exactly+"y")), 413)
+	checkRefused("too large, found out as it came", e.alice.UploadStream("text/plain", strings.NewReader(exactly+exactly)), 413)
+	checkRefused("turned down by the store", e.alice.Upload("application/x-poison", []byte("hemlock")), 415)
 
 	inAccount := func(c *jmaptest.Tester, id string) *jmaptest.Tester {
 		return c.With(func(c *jmaptest.Tester) { c.AccountID = id })
@@ -255,4 +307,88 @@ func TestWatch(t *testing.T) {
 	kitchen.Bake("oat")
 	checkJSON(t, "a change that was published is heard of once", stream.NextState(), `{"kitchen": {"Cookie": "2"}}`)
 	stream.AssertQuiet()
+}
+
+// A user's uploads past the number allowed at once wait for a place; they
+// are not turned away, and they do not hold up anyone else's.
+func TestUploadsAtOnce(t *testing.T) {
+	e := newEnv(t, jmap.Limits{MaxSizeUpload: 100, MaxConcurrentUpload: 2})
+	arrived, release := e.bakery.HoldUploads()
+
+	done := make(chan int, 4)
+	upload := func(c *jmaptest.Tester, body string) {
+		go func() { done <- c.Upload("text/plain", []byte(body)).Status }()
+	}
+	// wait reports whether an upload reaches the store within a moment.
+	wait := func() bool {
+		select {
+		case <-arrived:
+			return true
+		case <-time.After(200 * time.Millisecond):
+			return false
+		}
+	}
+
+	upload(e.alice, "one")
+	upload(e.alice, "two")
+	if !wait() || !wait() {
+		t.Fatal("two uploads at once should both reach the store")
+	}
+	upload(e.alice, "three")
+	if wait() {
+		t.Fatal("a third upload reached the store while two were under way")
+	}
+	upload(e.bob, "bob's")
+	if !wait() {
+		t.Fatal("another user's upload was held up by the first user's")
+	}
+
+	release()
+	if !wait() {
+		t.Fatal("the upload that waited never reached the store")
+	}
+	for range 4 {
+		select {
+		case status := <-done:
+			if status != 201 {
+				t.Errorf("an upload ended with status %d", status)
+			}
+		case <-time.After(5 * time.Second):
+			t.Fatal("an upload never finished")
+		}
+	}
+}
+
+// pattern is a stream of n bytes that anyone can work out: byte i is i%251.
+type pattern struct{ at, n int64 }
+
+func (p *pattern) Read(b []byte) (int, error) {
+	if p.at >= p.n {
+		return 0, io.EOF
+	}
+	if left := p.n - p.at; int64(len(b)) > left {
+		b = b[:left]
+	}
+	for i := range b {
+		b[i] = byte((p.at + int64(i)) % 251)
+	}
+	p.at += int64(len(b))
+	return len(b), nil
+}
+
+// An upload far larger than anyone would hold in memory goes through as a
+// stream, and any part of it can be had back.
+func TestLargeUpload(t *testing.T) {
+	const size = 96 << 20
+	e := newEnv(t, jmap.Limits{MaxSizeUpload: size})
+	up := e.alice.UploadStream("video/mp4", &pattern{n: size})
+	if up.Status != 201 || up.Size != size {
+		t.Fatalf("got status %d, size %d: %s", up.Status, up.Size, up.Body)
+	}
+	const from = 80<<20 + 17
+	part := e.alice.DownloadRange(up.BlobID, "film.mp4", "", fmt.Sprintf("bytes=%d-%d", from, from+999))
+	want, _ := io.ReadAll(&pattern{at: from, n: from + 1000})
+	if part.Status != 206 || !bytes.Equal(part.Body, want) {
+		t.Errorf("a part from deep inside: got status %d and %d bytes, which are not the ones sent", part.Status, len(part.Body))
+	}
 }
