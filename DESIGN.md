@@ -100,7 +100,8 @@ The names are provisional.
   to every hook and custom method.  Jiggle uses the two to stamp its change
   log.
 - **Limits that are advertised are enforced,** and upload concurrency is
-  configurable.
+  configurable.  A user's request or upload past the number allowed at
+  once waits its turn; it is not refused.
 
 ## Custom methods
 
