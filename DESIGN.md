@@ -44,8 +44,12 @@ convenience.
 
 - **`/set` is per object.**  Each create, update and destroy succeeds or
   fails alone.  There is no all-or-nothing mode.
-- **`/set` runs destroy, then update, then create,** so that a value freed
-  by a destroy can be taken by an update or a create in the same call.
+- **`/set` runs destroy, then create, then update.**  Destroying first lets
+  a value freed by a destroy be taken by a create or an update in the same
+  call.  Creating comes before updating because RFC 8620 Â§5.3 requires a
+  creation to happen before anything in the call that refers to it, which
+  an update may.  A destroy that names an object made in the same call
+  waits until it has been made.
 - **Extensions go in custom methods,** registered by the application under
   its own capability.
 
