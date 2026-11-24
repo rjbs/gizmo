@@ -307,6 +307,14 @@ func (k *Kit) Purge(ctx context.Context, q Queryer, typ string, before time.Time
 // one this database has not yet reached all get cannotCalculateChanges.
 // The last is what a client sees when the database has been restored from
 // a backup, and the answer to all three is to fetch everything again.
+//
+// When max cuts the changes short, the state returned is the modseq of the
+// last change given, for the client to ask again from.  Asked from there,
+// an object made before that modseq and changed after it is called
+// updated, though it was in no earlier answer: its change moved it past
+// the cut.  This is known and left alone; Cyrus and Ix do the same, and a
+// client has to take an updated id it doesn't hold for a creation.  See
+// DESIGN.md.  -- claude, 2026-11-23
 func (k *Kit) Changes(ctx context.Context, q Queryer, typ, since string, max int) (*std.Changed, error) {
 	ty, err := k.typ(typ)
 	if err != nil {

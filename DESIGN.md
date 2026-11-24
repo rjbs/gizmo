@@ -157,6 +157,16 @@ an epoch added.
   the state.
 - **`/changes` refuses with `cannotCalculateChanges`** when the client's
   state is from another epoch or is below `lowest_modseq`.
+- **A paged `/changes` may call an object updated that the client was
+  never told of.**  When `maxChanges` cuts a response short, its
+  `newState` is a modseq partway along, and the next page judges what is
+  new against that.  An object made before that point and changed after
+  it was not on the first page, where its newer modseq put it later, and
+  is on a later page as updated.  A client must treat an updated id it
+  doesn't hold as a creation.  Cyrus and Ix behave the same way, so a
+  client that works with them already does.  The cure would be states
+  that remember where paging began, which was judged not worth a second
+  form of state string.
 
 ## Accounts
 

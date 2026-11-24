@@ -211,6 +211,20 @@ func TestStatesAndChanges(t *testing.T) {
 	})
 }
 
+// An object made before a page's cut and changed after it comes on a later
+// page as updated, the client never having been told it was made.  This is
+// not wanted so much as accepted; see the comment on Changes.
+func TestPagedChangesCallTheUnseenUpdated(t *testing.T) {
+	s := newShop(t)
+	s.write(func(tx *Tx) { s.make(tx, "a") })  // 1
+	s.write(func(tx *Tx) { s.make(tx, "b") })  // 2
+	s.write(func(tx *Tx) { s.touch(tx, "a") }) // 3
+
+	checkChanges(t, s, "all at once, a is created", "0", 0, "b a", "", "", "3", false)
+	checkChanges(t, s, "the first page has only b", "0", 1, "b", "", "", "2", true)
+	checkChanges(t, s, "the second page calls a updated", "2", 1, "", "a", "", "3", false)
+}
+
 func TestMissingObjects(t *testing.T) {
 	s := newShop(t)
 	s.write(func(tx *Tx) {
