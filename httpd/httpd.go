@@ -13,6 +13,10 @@
 //
 // Every request must already carry an authenticated user in its context, put
 // there by the auth package's middleware; the Server refuses anything else.
+//
+// The Server also refuses what its Guard does: requests that a browser makes
+// for a page from somewhere else, and requests addressed to a name the
+// server isn't known by.
 package httpd
 
 import (
@@ -80,6 +84,11 @@ type Config struct {
 	// If nil, there are none, and both endpoints answer 404.
 	Blobs blob.Store
 
+	// Guard keeps browsers from being used against the server.  If nil,
+	// the Server makes one.  Either way, the Server tells it the name in
+	// BaseURL; any other name the server goes by has to be given to it.
+	Guard *Guard
+
 	Logger *slog.Logger
 }
 
@@ -87,6 +96,8 @@ type Config struct {
 type Server struct {
 	cfg Config
 	mux *http.ServeMux
+
+	guarded http.Handler
 
 	requests, uploads *limiter
 }
@@ -98,6 +109,10 @@ func New(cfg Config) *Server {
 	if cfg.Collations == nil {
 		cfg.Collations = []string{}
 	}
+	if cfg.Guard == nil {
+		cfg.Guard = NewGuard()
+	}
+	cfg.Guard.AllowHost(cfg.BaseURL)
 	cfg.Limits = cfg.Limits.WithDefaults()
 	s := &Server{
 		cfg: cfg, mux: http.NewServeMux(),
@@ -113,10 +128,19 @@ func New(cfg Config) *Server {
 	s.mux.HandleFunc("GET /jmap/eventsource", s.handleEventSource)
 	s.mux.Handle("GET /jmap/download/{accountId}/{blobId}/{name}", s.blobs(s.handleDownload))
 	s.mux.Handle("POST /jmap/upload/{accountId}/", s.blobs(s.handleUpload))
+	s.guarded = cfg.Guard.Handler(http.HandlerFunc(s.serve))
 	return s
 }
 
+// Guard returns the Server's Guard: the one it was given, or the one it
+// made.
+func (s *Server) Guard() *Guard { return s.cfg.Guard }
+
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.guarded.ServeHTTP(w, r)
+}
+
+func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 	if _, ok := auth.UserFrom(r.Context()); !ok {
 		http.Error(w, "authentication required", http.StatusUnauthorized)
 		return

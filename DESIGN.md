@@ -184,6 +184,26 @@ two.
   that doesn't gets a default.  Uniqueness comes from the table's
   constraint, with a retry on collision.
 
+## Browsers
+
+A server that decides who a request is from by where it comes from, such
+as the loopback interface or a tailnet node, can be reached by any page
+open in a browser there.  The HTTP server guards against that, with no
+configuration needed to turn it on.
+
+- **Cross-origin writes are refused.**  A request that could change
+  something, and that a browser sent for a page from another origin, gets
+  a 403.  An origin can be named as trusted, for a web client served from
+  elsewhere.
+- **Requests to a name the server isn't known by are refused,** with a 421.
+  This is against DNS rebinding, which would let a page read through the
+  API.  IP addresses and `localhost` always pass.  The application gives
+  the server's other names: its base URL, and its name on a tailnet.
+- **Clients that aren't browsers are unaffected** by the first guard, and
+  by the second so long as they use one of the server's names.
+- **What the application serves beside JMAP** it guards with the same
+  guard, which it can ask the server for.
+
 ## Push
 
 - **The event source is fed by a broker** that anything may publish to.  A
