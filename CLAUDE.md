@@ -8,7 +8,8 @@ is organized, and `/next-unit` writes the next unit.
 
 The site is built by Zensical from `learning/mkdocs.yml`:
 `learning/build.sh` builds it in Docker, and `learning/build.sh serve`
-previews it.  The theme and Markdown settings in `mkdocs.yml` are kept the
+previews it.  The theme and Markdown settings in `mkdocs.yml`, and the rules
+in `learning/docs/extra.css`, are kept the
 same as those of the Jinx manual (`../Jinx/doc/manual/mkdocs.yml`).
 
 When the user asks a question about Go, or about this code as Go, during a

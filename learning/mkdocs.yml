@@ -12,23 +12,21 @@ copyright: >-
   this content generated for <a href="https://rjbs.cloud/">rjbs</a> and of
   questionable value to anybody else
 
-# From here to the nav, this file is the same as the Jinx manual's, so that
-# the two look alike.  Change them together.
+# From here to the nav, this file is the same as the Jinx manual's but for
+# the primary colour, so that the two look alike and can still be told
+# apart.  Change them together.
 theme:
   name: material
-  # Zensical has two looks.  "classic" is that of Material for MkDocs, which
-  # the Jinx manual was written for; the other, and the default, is "modern".
-  variant: classic
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: deep purple
+      primary: teal
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: deep purple
+      primary: teal
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -37,6 +35,9 @@ theme:
     - navigation.footer
     - navigation.top
     - toc.follow
+
+extra_css:
+  - extra.css
 
 markdown_extensions:
   - admonition
