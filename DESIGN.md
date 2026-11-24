@@ -80,6 +80,9 @@ The names are provisional.
   depend on it.
 - **`jmaptest`:** the HTTP fixture and assertion helpers for testing a
   server end to end.
+- **`client`:** a JMAP client for programs that aren't tests: the session,
+  requests of one call or several, uploads and downloads.  What a server
+  refuses comes back as an error.  It has no event source yet.
 - **`tailnet`:** Tailscale identity as an `auth` source.  Probably its own
   module, to keep Tailscale's dependencies away from servers that don't
   want them.
