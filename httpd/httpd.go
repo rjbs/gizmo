@@ -73,7 +73,10 @@ type Config struct {
 	// The limits on objects are for whatever answers /get and /set.
 	Limits jmap.Limits
 
-	// Capabilities is the session's capabilities object, apart from core,
+	// Capabilities gives the details of capabilities that have any, for
+	// the session's capabilities object.  Every capability the Processor
+	// knows is in that object whether it is here or not, with no details
+	// unless it is.  This is not the place for core,
 	// which the Server supplies.
 	Capabilities map[string]any
 
@@ -222,6 +225,11 @@ func (s *Server) session(r *http.Request) map[string]any {
 			"maxObjectsInSet":       l.MaxObjectsInSet,
 			"collationAlgorithms":   s.cfg.Collations,
 		},
+	}
+	for _, capability := range s.cfg.Processor.Capabilities() {
+		if capability != jmap.CoreCapability {
+			capabilities[capability] = map[string]any{}
+		}
 	}
 	for capability, details := range s.cfg.Capabilities {
 		capabilities[capability] = details

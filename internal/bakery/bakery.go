@@ -115,11 +115,10 @@ func New(limits jmap.Limits) *Bakery {
 			}
 			return nil
 		},
-		Broker:       b.Broker,
-		Limits:       limits,
-		Capabilities: map[string]any{Capability: map[string]any{}},
-		Blobs:        b.pantry,
-		Logger:       b.Processor.Logger,
+		Broker: b.Broker,
+		Limits: limits,
+		Blobs:  b.pantry,
+		Logger: b.Processor.Logger,
 	})
 	b.Handler = auth.Bearer(dir, func(*http.Request, string) {}, auth.Loopback(dir, srv))
 	return b

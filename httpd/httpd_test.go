@@ -12,6 +12,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rjbs/gizmo/auth"
+	"github.com/rjbs/gizmo/httpd"
 	"github.com/rjbs/gizmo/internal/bakery"
 	"github.com/rjbs/gizmo/jmap"
 	"github.com/rjbs/gizmo/jmaptest"
@@ -400,4 +402,26 @@ func TestLargeUpload(t *testing.T) {
 	if part.Status != 206 || !bytes.Equal(part.Body, want) {
 		t.Errorf("a part from deep inside: got status %d and %d bytes, which are not the ones sent", part.Status, len(part.Body))
 	}
+}
+
+// A capability the processor knows is in the session without being asked
+// for, and one given details has them.
+func TestSessionCapabilities(t *testing.T) {
+	p := jmap.NewProcessor()
+	p.Register("Loaf/get", "https://gizmo.example/loaves", func(*jmap.Call, json.RawMessage) (any, error) { return nil, nil })
+	p.AddCapability("https://gizmo.example/ovens")
+	srv := httptest.NewServer(auth.Loopback(auth.Solo("baker", "bakery"), httpd.New(httpd.Config{
+		Processor:    p,
+		Directory:    auth.Solo("baker", "bakery"),
+		Account:      func(string) httpd.Account { return nil },
+		Capabilities: map[string]any{"https://gizmo.example/ovens": map[string]any{"hottest": 250}},
+	})))
+	t.Cleanup(srv.Close)
+
+	got := jmaptest.New(t, srv.URL).Session()["capabilities"].(map[string]any)
+	delete(got, jmap.CoreCapability)
+	checkJSON(t, "the capabilities besides core", got, `{
+		"https://gizmo.example/loaves": {},
+		"https://gizmo.example/ovens": {"hottest": 250}
+	}`)
 }
