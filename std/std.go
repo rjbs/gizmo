@@ -49,34 +49,11 @@ type Tx interface {
 // only reads asks for one that need not be able to write.
 type Begin[T Tx] func(ctx context.Context, write bool) (T, error)
 
-// Limits are the limits the standard methods enforce.  They are the
-// application's to set, and ought to be what it advertises.
-type Limits struct {
-	// MaxObjectsInGet is the most objects one /get may ask for or return.
-	MaxObjectsInGet int
-
-	// MaxObjectsInSet is the most objects one /set may create, update and
-	// destroy, taken together.
-	MaxObjectsInSet int
-
-	// MaxQueryLimit is the most ids one /query will return.  A query that
-	// asks for more, or names no limit, gets this many.
-	MaxQueryLimit int
-}
-
-// WithDefaults returns the limits with every zero field set to its default.
-func (l Limits) WithDefaults() Limits {
-	if l.MaxObjectsInGet == 0 {
-		l.MaxObjectsInGet = 1000
-	}
-	if l.MaxObjectsInSet == 0 {
-		l.MaxObjectsInSet = 1000
-	}
-	if l.MaxQueryLimit == 0 {
-		l.MaxQueryLimit = 1000
-	}
-	return l
-}
+// Limits are the limits the standard methods enforce: the most objects in a
+// /get and in a /set, and the most ids from a /query.  They are the same
+// value that the HTTP server is given to advertise, so that what is
+// advertised is what is kept.
+type Limits = jmap.Limits
 
 // Work is a write transaction in progress for one method call.
 type Work[T Tx] struct {

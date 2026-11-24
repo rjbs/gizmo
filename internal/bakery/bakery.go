@@ -19,7 +19,6 @@ import (
 	"github.com/rjbs/gizmo/httpd"
 	"github.com/rjbs/gizmo/jmap"
 	"github.com/rjbs/gizmo/push"
-	"github.com/rjbs/gizmo/std"
 )
 
 // Capability is the capability Cookie's methods are under.
@@ -77,11 +76,14 @@ func New(limits jmap.Limits) *Bakery {
 	dir.TokenPrefix = TokenPrefix
 	b.Directory = dir
 
+	// The bakery gives few cookies to a query, so that a test of paging
+	// needn't bake many.
+	limits.MaxQueryLimit = 4
 	limits = limits.WithDefaults()
 	for _, id := range []string{"kitchen", "cellar", "bobs"} {
 		b.accounts[id] = &Account{
 			id: id, broker: b.Broker, d: newData(),
-			limits: std.Limits{MaxObjectsInGet: limits.MaxObjectsInGet, MaxObjectsInSet: limits.MaxObjectsInSet, MaxQueryLimit: 4},
+			limits: limits,
 		}
 		// The bakery publishes every type's state when any changes,
 		// so the broker has to know where they all began.
