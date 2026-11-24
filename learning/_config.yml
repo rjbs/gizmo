@@ -1,0 +1,38 @@
+title: Learning Go from Gizmo
+description: >-
+  A self-guided Go curriculum for an experienced programmer, using Gizmo and
+  the JMAP servers built on it as the working examples throughout.
+
+remote_theme: just-the-docs/just-the-docs@v0.10.0
+
+# Neither url nor baseurl is set here.  The Pages workflow passes the baseurl
+# that GitHub reports for the site, so the same configuration serves from
+# rjbs.github.io/gizmo or from a domain of its own.
+
+plugins:
+  - jekyll-remote-theme
+  - jekyll-include-cache
+  - jekyll-seo-tag
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+  # Go is full of doubled braces, in nested composite literals and in
+  # templates, and Liquid would take them for its own.  The text is plain
+  # Markdown; only the theme's own files need Liquid.
+  - scope:
+      path: "*.md"
+    values:
+      render_with_liquid: false
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+
+color_scheme: light
+
+# Footer
+footer_content: "this content generated for <a href='https://rjbs.cloud/'>rjbs</a> and of questionable value to anybody else"
