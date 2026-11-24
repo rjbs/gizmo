@@ -16,6 +16,9 @@ copyright: >-
 # the two look alike.  Change them together.
 theme:
   name: material
+  # Zensical has two looks.  "classic" is that of Material for MkDocs, which
+  # the Jinx manual was written for; the other, and the default, is "modern".
+  variant: classic
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
