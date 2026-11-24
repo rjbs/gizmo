@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -256,4 +258,135 @@ func TestBlobs(t *testing.T) {
 
 	_, err := c.Download(ctx, "no-such-blob", "x", "text/plain")
 	checkRefused(t, "a blob that isn't there", err, 404, "")
+}
+
+// connectWith is connect for a bakery with limits of its own, and it also
+// returns a count of the API requests the bakery has been sent.
+func connectWith(t *testing.T, limits jmap.Limits) (*client.Client, *int) {
+	t.Helper()
+	b := bakery.New(limits)
+	t.Cleanup(b.Close)
+	requests := new(int)
+	web := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/jmap/api" {
+			*requests++
+		}
+		b.Handler.ServeHTTP(w, r)
+	}))
+	t.Cleanup(web.Close)
+
+	c := client.New(web.URL, jmap.CoreCapability, bakery.Capability)
+	if err := c.UseAccount(ctx, bakery.Capability); err != nil {
+		t.Fatal(err)
+	}
+	return c, requests
+}
+
+func TestLimits(t *testing.T) {
+	c, _ := connectWith(t, jmap.Limits{MaxCallsInRequest: 3, MaxObjectsInGet: 7, MaxSizeUpload: 99})
+	s, _ := c.Session(ctx)
+	if l := s.Limits(); l.MaxCallsInRequest != 3 || l.MaxObjectsInGet != 7 || l.MaxSizeUpload != 99 || l.MaxObjectsInSet != 1000 {
+		t.Errorf("the bakery's limits read as %+v", l)
+	}
+
+	// A server that says nothing is taken to allow the least it should.
+	if l := (&client.Session{}).Limits(); l.MaxCallsInRequest != 16 || l.MaxObjectsInGet != 500 || l.MaxObjectsInSet != 500 {
+		t.Errorf("no limits read as %+v", l)
+	}
+}
+
+// echoes makes a group of n Core/echo calls, each of which says the given
+// word.
+func echoes(n int, word string) []client.Call {
+	group := make([]client.Call, n)
+	for i := range group {
+		group[i] = client.Do("Core/echo", client.Args{"say": word, "accountId": client.Omit})
+	}
+	return group
+}
+
+// checkBatch checks that groups of the given sizes, batched to a server
+// that allows three calls in a request, take the given number of requests,
+// and that every call is answered, in order, under its place in the batch.
+func checkBatch(t *testing.T, sizes []int, wantRequests int) {
+	t.Helper()
+	c, requests := connectWith(t, jmap.Limits{MaxCallsInRequest: 3})
+	var groups [][]client.Call
+	var want []string
+	for i, size := range sizes {
+		word := strconv.Itoa(i)
+		groups = append(groups, echoes(size, word))
+		for range size {
+			want = append(want, strconv.Itoa(len(want))+"="+word)
+		}
+	}
+
+	resp, err := c.Batch(ctx, groups...)
+	if err != nil {
+		t.Errorf("groups of %v: %v", sizes, err)
+		return
+	}
+	var got []string
+	for _, res := range resp.Results {
+		var said struct{ Say string }
+		if err := res.Decode(&said); err != nil {
+			t.Errorf("groups of %v: %v", sizes, err)
+		}
+		got = append(got, res.CallID+"="+said.Say)
+	}
+	if strings.Join(got, " ") != strings.Join(want, " ") || *requests != wantRequests {
+		t.Errorf("groups of %v: %d requests answering %v, want %d answering %v", sizes, *requests, got, wantRequests, want)
+	}
+}
+
+func TestBatch(t *testing.T) {
+	checkBatch(t, nil, 0)
+	checkBatch(t, []int{1}, 1)
+	checkBatch(t, []int{1, 1, 1}, 1)
+	checkBatch(t, []int{1, 1, 1, 1}, 2)
+	checkBatch(t, []int{3, 3}, 2)
+
+	// A group is kept whole, though that leaves room in a request.
+	checkBatch(t, []int{2, 2, 2}, 3)
+	checkBatch(t, []int{2, 1, 2, 1}, 2)
+	checkBatch(t, []int{1, 3, 1}, 3)
+	checkBatch(t, []int{0, 2, 0, 1}, 1)
+
+	c, requests := connectWith(t, jmap.Limits{MaxCallsInRequest: 3})
+	if _, err := c.Batch(ctx, echoes(1, "a"), echoes(4, "b")); err == nil || !strings.Contains(err.Error(), "allows only 3") {
+		t.Errorf("a group too large for any request: %v", err)
+	}
+	if *requests != 0 {
+		t.Errorf("%d requests were made of a batch that couldn't be", *requests)
+	}
+}
+
+// Calls of one group may refer to one another, though the batch takes more
+// than one request.
+func TestBatchTogether(t *testing.T) {
+	c, _ := connectWith(t, jmap.Limits{MaxCallsInRequest: 2})
+	pair := func(flavor string) []client.Call {
+		return []client.Call{
+			client.Do("Cookie/set", client.Args{"create": client.Args{flavor: client.Args{"flavor": flavor}}}).As("set-" + flavor),
+			client.Do("Cookie/get", client.Args{"ids": []string{"#" + flavor}}).As("get-" + flavor),
+		}
+	}
+	resp, err := c.Batch(ctx, pair("ginger"), pair("oat"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := resp.Err(); err != nil {
+		t.Fatal(err)
+	}
+	for _, flavor := range []string{"ginger", "oat"} {
+		var got struct{ List []struct{ ID, Flavor string } }
+		if of := resp.For("get-" + flavor); len(of) != 1 {
+			t.Fatalf("%d results for getting the %s cookie", len(of), flavor)
+		} else if err := of[0].Decode(&got); err != nil {
+			t.Fatal(err)
+		}
+		if len(got.List) != 1 || got.List[0].Flavor != flavor {
+			t.Errorf("the %s cookie, fetched by its creation id: %+v", flavor, got.List)
+		}
+	}
 }
