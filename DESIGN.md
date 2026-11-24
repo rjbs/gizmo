@@ -83,9 +83,11 @@ The names are provisional.
 - **`client`:** a JMAP client for programs that aren't tests: the session,
   requests of one call or several, uploads and downloads.  What a server
   refuses comes back as an error.  It has no event source yet.
-- **`tailnet`:** Tailscale identity as an `auth` source.  Probably its own
-  module, to keep Tailscale's dependencies away from servers that don't
-  want them.
+- **`tailnet`:** a server's own node on a Tailscale network, its listener
+  there, and Tailscale identity as an `auth` source.  It is a module of
+  its own, `github.com/rjbs/gizmo/tailnet`, with its own version tags
+  (`tailnet/v0.1.0`), so that Tailscale's dependencies and the version of
+  Go it wants stay away from servers that don't want them.
 
 ## Requests
 
