@@ -26,6 +26,9 @@ type Stream struct {
 	// Status is the HTTP status the connection was answered with.  Unless
 	// it is 200, there will be no events.
 	Status int
+
+	// Header is the headers the connection was answered with.
+	Header http.Header
 }
 
 // Listen opens the event source with the given query string, such as
@@ -47,7 +50,7 @@ func (c *Tester) Listen(query string) *Stream {
 		cancel()
 		c.T.Fatalf("opening the event source: %v", err)
 	}
-	s := &Stream{t: c.T, events: make(chan Event, 64), cancel: cancel, Status: resp.StatusCode}
+	s := &Stream{t: c.T, events: make(chan Event, 64), cancel: cancel, Status: resp.StatusCode, Header: resp.Header}
 	c.T.Cleanup(s.Close)
 	go func() {
 		defer resp.Body.Close()

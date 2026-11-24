@@ -171,8 +171,8 @@ func TestBlobs(t *testing.T) {
 	e := newEnv(t, jmap.Limits{MaxSizeUpload: 32})
 
 	up := e.alice.Upload("text/plain", []byte("flour, sugar, butter"))
-	if up.Status != 201 || up.Size != 20 || up.Type != "text/plain" {
-		t.Fatalf("upload: got status %d, size %d, type %q: %s", up.Status, up.Size, up.Type, up.Body)
+	if up.Status != 201 || up.Size != 20 || up.Type != "text/plain" || up.AccountID != "kitchen" {
+		t.Fatalf("upload: got status %d, size %d, type %q, account %q: %s", up.Status, up.Size, up.Type, up.AccountID, up.Body)
 	}
 	down := e.alice.Download(up.BlobID, "recipe.txt", "")
 	checkDownload(t, "the whole blob", down, 200, "flour, sugar, butter", "text/plain")
@@ -244,6 +244,9 @@ func TestEventSource(t *testing.T) {
 	kitchen.Bake("ginger")
 
 	all := e.alice.Listen("types=*&closeafter=no&ping=0")
+	if got := all.Header.Get("Content-Type"); all.Status != 200 || got != "text/event-stream" {
+		t.Errorf("the event source answered with status %d and type %q", all.Status, got)
+	}
 	checkJSON(t, "the states on connecting", all.NextState(),
 		`{"kitchen": {"Cookie": "1", "Jar": "0"}, "cellar": {"Cookie": "0", "Jar": "0"}}`)
 	all.AssertQuiet()

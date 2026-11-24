@@ -6,6 +6,12 @@
 // response for something it doesn't have, such as its single sentence when
 // it has two, fails the test at once, so a test can say what it expects by
 // what it asks for.
+//
+// Numbers come two ways.  Where a response is given as a map, as in a
+// Sentence's Args, a number is a json.Number, so that none is rounded.
+// Where a test has a response decoded into a value of its own, with
+// Decode, a number is whatever that value makes of it, which for a map is
+// a float64.
 package jmaptest
 
 import (
@@ -222,11 +228,12 @@ type Uploaded struct {
 	Status int
 	Body   []byte
 
-	// BlobID, Type and Size are from the server's answer, when the upload
-	// was accepted.
-	BlobID string
-	Type   string
-	Size   int64
+	// AccountID, BlobID, Type and Size are from the server's answer, when
+	// the upload was accepted.
+	AccountID string
+	BlobID    string
+	Type      string
+	Size      int64
 }
 
 // Upload sends data to the upload endpoint of the tester's account.
@@ -249,14 +256,15 @@ func (c *Tester) uploaded(resp *http.Response, body []byte) *Uploaded {
 	up := &Uploaded{Status: resp.StatusCode, Body: body}
 	if resp.StatusCode == 201 {
 		var answer struct {
-			BlobID string `json:"blobId"`
-			Type   string `json:"type"`
-			Size   int64  `json:"size"`
+			AccountID string `json:"accountId"`
+			BlobID    string `json:"blobId"`
+			Type      string `json:"type"`
+			Size      int64  `json:"size"`
 		}
 		if err := json.Unmarshal(body, &answer); err != nil {
 			c.T.Fatalf("the upload's answer isn't what it should be: %v: %s", err, body)
 		}
-		up.BlobID, up.Type, up.Size = answer.BlobID, answer.Type, answer.Size
+		up.AccountID, up.BlobID, up.Type, up.Size = answer.AccountID, answer.BlobID, answer.Type, answer.Size
 	}
 	return up
 }
