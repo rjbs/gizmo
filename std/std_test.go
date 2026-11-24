@@ -186,6 +186,9 @@ func TestSetBasics(t *testing.T) {
 
 	set = k.call("Cookie/set", args{"update": args{"001": args{"flavor": "ginger snap", "notes/hot": true}}}).AsSet().AssertNoErrors()
 	checkJSON(t, "an update with nothing to tell", set.Args["updated"], `{"001": null}`)
+	if told := set.AsSet().Updated("001"); told != nil {
+		t.Errorf("an update with nothing to tell told %v", told)
+	}
 	got := k.call("Cookie/get", args{"ids": []string{"001"}, "properties": []string{"flavor", "notes"}})
 	checkJSON(t, "the updated object", got.Args["list"], `[{"id": "001", "flavor": "ginger snap", "notes": {"hot": true}}]`)
 
@@ -398,8 +401,7 @@ func checkQuery(t *testing.T, k *kitchen, name string, a args, wantFlavors strin
 	for _, id := range s.Strs("ids") {
 		got = append(got, queryFlavors[id])
 	}
-	position, _ := s.Args["position"].(json.Number).Int64()
-	checkEqual(t, name, []any{strings.Join(got, " "), int(position)}, []any{wantFlavors, wantPosition})
+	checkEqual(t, name, []any{strings.Join(got, " "), int(s.Int("position"))}, []any{wantFlavors, wantPosition})
 	return s
 }
 

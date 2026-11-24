@@ -184,6 +184,20 @@ func (s *Sentence) Str(name string) string {
 	return v
 }
 
+// Int returns the argument of the given name, which must be a whole number.
+func (s *Sentence) Int(name string) int64 {
+	s.t.Helper()
+	n, ok := s.Args[name].(json.Number)
+	if !ok {
+		s.t.Fatalf("expected a number for %q, but got %s", name, s)
+	}
+	v, err := n.Int64()
+	if err != nil {
+		s.t.Fatalf("expected a whole number for %q, but got %s", name, s)
+	}
+	return v
+}
+
 // Strs returns the argument of the given name, which must be an array of
 // strings.
 func (s *Sentence) Strs(name string) []string {
@@ -244,6 +258,19 @@ func (s *Set) CreatedID(creationID string) string {
 		s.t.Fatalf("the object created as %q has no id that is a string: %s", creationID, s)
 	}
 	return id
+}
+
+// Updated returns what the server said of the object updated under an id,
+// which must have been updated.  That is often nothing, and then this
+// returns nil.
+func (s *Set) Updated(id string) map[string]any {
+	s.t.Helper()
+	told, ok := s.objects("updated")[id]
+	if !ok {
+		s.t.Fatalf("%q was not updated: %s", id, s)
+	}
+	o, _ := told.(map[string]any)
+	return o
 }
 
 // UpdatedIDs returns the ids of the objects updated, sorted.

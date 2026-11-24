@@ -118,6 +118,9 @@ func TestSession(t *testing.T) {
 	if raw := e.stranger.Post(`{"using":[],"methodCalls":[]}`); raw.Status != 401 {
 		t.Errorf("a token nobody holds got status %d, not 401", raw.Status)
 	}
+	if got := e.stranger.Get("/jmap/session"); got.Status != 401 || got.Header.Get("WWW-Authenticate") == "" {
+		t.Errorf("a token nobody holds, asking for the session, got status %d and was asked for %q", got.Status, got.Header.Get("WWW-Authenticate"))
+	}
 }
 
 func TestAPI(t *testing.T) {
@@ -276,8 +279,11 @@ func TestEventSource(t *testing.T) {
 	once.AssertClosed()
 
 	held := e.alice.Listen("types=Cookie&closeafter=state&ping=300")
-	if ev := held.Next(); ev.Type != "ping" || ev.Data != `{"interval":300}` {
+	var ping struct{ Interval int }
+	if ev := held.Next(); ev.Type != "ping" {
 		t.Errorf("closeafter=state with pings should open with a ping, but got %q: %s", ev.Type, ev.Data)
+	} else if ev.Decode(t, &ping); ping.Interval != 300 {
+		t.Errorf("a ping every 300 seconds says its interval is %d", ping.Interval)
 	}
 	held.AssertQuiet()
 

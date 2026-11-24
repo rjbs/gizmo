@@ -97,6 +97,15 @@ func (s *Stream) next(wait time.Duration) (Event, bool, bool) {
 	}
 }
 
+// Decode decodes the event's data, which must be JSON, into a value of the
+// test's own type.
+func (e Event) Decode(t testing.TB, into any) {
+	t.Helper()
+	if err := json.Unmarshal([]byte(e.Data), into); err != nil {
+		t.Fatalf("decoding the data of a %q event: %v: %s", e.Type, err, e.Data)
+	}
+}
+
 // Next returns the next event, which must come within a couple of seconds.
 func (s *Stream) Next() Event {
 	s.t.Helper()

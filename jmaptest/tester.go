@@ -129,6 +129,22 @@ func (c *Tester) send(method, path, contentType string, body io.Reader, header m
 	return resp, data
 }
 
+// Answer is the plain result of a request made with Get.
+type Answer struct {
+	Status int
+	Header http.Header
+	Body   []byte
+}
+
+// Get fetches a path of the server, such as "/jmap/session", and returns
+// whatever the answer is.  It is for looking at what Session and the rest
+// fail a test over: a refusal, with its status and headers.
+func (c *Tester) Get(path string) *Answer {
+	c.T.Helper()
+	resp, body := c.do("GET", path, "", nil)
+	return &Answer{Status: resp.StatusCode, Header: resp.Header, Body: body}
+}
+
 // Session fetches the session object.
 func (c *Tester) Session() map[string]any {
 	c.T.Helper()
