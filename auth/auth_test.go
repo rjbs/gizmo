@@ -200,3 +200,21 @@ func TestForAccount(t *testing.T) {
 	checkRoute(t, "an account that isn't a string", d, "alice", `{"accountId":7}`, "invalidArguments")
 	checkRoute(t, "nobody calling", d, "", `{"accountId":"home"}`, "accountNotFound")
 }
+
+func TestSolo(t *testing.T) {
+	d := Solo("juke", "music")
+	checkAuth(t, "the one user, from anywhere", d, "plain", "", "", 200, "juke:music;music")
+	checkAuth(t, "the one user has no token", d, "plain", "", "Bearer "+mustToken(t), 401, "")
+	if a := d.Accounts["music"]; a.Owner != "juke" || a.Name != "juke" {
+		t.Errorf("the one account is %+v", a)
+	}
+}
+
+func mustToken(t *testing.T) string {
+	t.Helper()
+	token, err := NewToken("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return token
+}

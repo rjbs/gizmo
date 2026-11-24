@@ -200,6 +200,22 @@ func claimedTwice(first, second, what string) error {
 	return fmt.Errorf("users %q and %q both claim %s", first, second, what)
 }
 
+// Solo returns the directory of a server with one user, who owns its one
+// account, and is who every request acts as.  It is to be used with
+// Loopback: who may make requests at all is for whoever lets them in to
+// decide, by where the server listens and what stands in front of it.
+func Solo(username, accountID string) *Directory {
+	d, err := NewDirectory(
+		map[string]*User{username: {Credentials: []Credential{{Type: CredLoopback}}}},
+		map[string]*Account{accountID: {Owner: username, Name: username}},
+	)
+	if err != nil {
+		// One user owning one account can't be a bad directory.
+		panic(err)
+	}
+	return d
+}
+
 // LoopbackUser is the user that plain-listener requests act as, or nil if
 // no user holds the loopback credential.  If the credential names
 // accounts, the user returned owns only those.
