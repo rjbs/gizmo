@@ -23,24 +23,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ruby/setup-ruby@v1
+      - uses: actions/setup-python@v5
         with:
-          ruby-version: '3.3'
-          bundler-cache: true
-          working-directory: learning
+          python-version: '3.x'
 
       - uses: actions/configure-pages@v5
-        id: pages
+
+      - name: Install Zensical
+        run: pip install -r learning/requirements.txt
 
       - name: Build site
-        run: bundle exec jekyll build --destination ../_site --baseurl "${{ steps.pages.outputs.base_path }}"
+        run: zensical build --clean --strict
         working-directory: learning
-        env:
-          JEKYLL_ENV: production
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: learning/site
 
   deploy:
     runs-on: ubuntu-latest

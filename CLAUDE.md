@@ -3,11 +3,16 @@
 ## The Go learning booklet
 
 `learning/`, on the `go-learning` branch, is a booklet that teaches Go by
-way of Gizmo and the servers built on it.  `learning/SYLLABUS.md` says how it
+way of Gizmo and the servers built on it.  `learning/docs/SYLLABUS.md` says how it
 is organized, and `/next-unit` writes the next unit.
 
+The site is built by Zensical from `learning/mkdocs.yml`:
+`learning/build.sh` builds it in Docker, and `learning/build.sh serve`
+previews it.  The theme and Markdown settings in `mkdocs.yml` are kept the
+same as those of the Jinx manual (`../Jinx/doc/manual/mkdocs.yml`).
+
 When the user asks a question about Go, or about this code as Go, during a
-learning discussion, log it to `learning/questions.md` under the heading of
+learning discussion, log it to `learning/docs/questions.md` under the heading of
 the unit it came from, with the answer you gave, then commit it.  Do this
 automatically without being prompted.
 

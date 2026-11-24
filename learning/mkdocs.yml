@@ -1,0 +1,60 @@
+site_name: Learning Go from Gizmo
+site_description: >-
+  A self-guided Go curriculum for an experienced programmer, using Gizmo and
+  the JMAP servers built on it as the working examples throughout.
+
+# With no site_url, every link in the built site is relative, so the same
+# build serves from rjbs.github.io/gizmo or from a domain of its own.
+site_url: ""
+use_directory_urls: true
+
+copyright: >-
+  this content generated for <a href="https://rjbs.cloud/">rjbs</a> and of
+  questionable value to anybody else
+
+# From here to the nav, this file is the same as the Jinx manual's, so that
+# the two look alike.  Change them together.
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - content.code.copy
+    - navigation.footer
+    - navigation.top
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+# A new unit must be added here, or it is built but appears in no menu.
+nav:
+  - Home: index.md
+  - Syllabus: SYLLABUS.md
+  - 1. Go as a Language: unit-01-go-language.md
+  - Questions & Answers: questions.md

@@ -1,8 +1,3 @@
----
-title: "Unit 1: Go as a Language"
-nav_order: 10
----
-
 # Unit 1: Go as a Language
 
 *Written against gizmo `f549a2d`.*
