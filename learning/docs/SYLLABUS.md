@@ -14,7 +14,7 @@ are built on it, and they supply what a library can't:
 - **TaskMaster** is the standing example of an application: the smallest of
   the three, and the one that shows Gizmo's hooks from the side that fills
   them in.
-- **jiggle** is where an application does its own concurrent work, runs other
+- **Jiggle** is where an application does its own concurrent work, runs other
   programs, and embeds files.
 - **Juke** is the oldest and largest, and is drawn on now and then.
 
@@ -44,7 +44,7 @@ can see where the code has drifted from.  The syllabus was written against:
 |---|---|
 | gizmo | `f549a2d` (after `v0.1.4`) |
 | TaskMaster | `98064bb` |
-| jiggle | `07f1763` |
+| Jiggle | `07f1763` |
 | Juke | `6791bd0` |
 
 ---
@@ -125,7 +125,7 @@ is done in their place.  `_test.go` files, and the difference between
 `package jmap` and `package jmap_test`.  `t.Helper`, `t.Cleanup`, `t.Fatal`
 against `t.Error`.  The style these repositories use: each case is one call
 to a named helper that takes its inputs and what is expected.  Table-driven
-tests and `t.Run` subtests, the commoner style elsewhere, as jiggle has
+tests and `t.Run` subtests, the commoner style elsewhere, as Jiggle has
 them.  `httptest`, for a real server on a real socket inside a test.  The
 bakery as a fixture, and `jmaptest` as a library written for tests, modeled
 on JMAP::Tester.  Running one test, reading a failure, `-v`, `-run`,
@@ -133,7 +133,7 @@ on JMAP::Tester.  Running one test, reading a failure, `-v`, `-run`,
 
 **Files to look at:** `jmap/patch_test.go`, `jmap/processor_test.go`,
 `std/std_test.go`, `jmaptest/tester.go`, `jmaptest/response.go`,
-`internal/bakery/`; in jiggle, `internal/server/server_test.go`
+`internal/bakery/`; in Jiggle, `internal/server/server_test.go`
 
 ---
 
@@ -238,11 +238,11 @@ as a semaphore, as in the upload limiter.  A channel of `struct{}` as a
 signal with no data.  `select` with `ctx.Done()`, the shape of every loop
 that must be able to stop.  The event source: one goroutine per connected
 client, parked until there is news.  Then an application's own workers:
-jiggle's lanes of image and video work, and a `sync.WaitGroup` over
+Jiggle's lanes of image and video work, and a `sync.WaitGroup` over
 uploads.  Goroutine leaks, and how the tests guard against them.
 
 **Files to look at:** `push/push.go`, `httpd/eventsource.go`,
-`httpd/blobs.go` (`limiter`), `jmaptest/events.go`; in jiggle,
+`httpd/blobs.go` (`limiter`), `jmaptest/events.go`; in Jiggle,
 `internal/server/worker.go`, `internal/publish/bunny.go`
 
 ---
@@ -260,7 +260,7 @@ variables, and what that does to deployment.  How each of the three servers
 mounts Gizmo beside what else it serves.
 
 **Files to look at:** in TaskMaster, `cmd/taskmaster/main.go`,
-`internal/config/config.go`, `demo-client/taskblaster.go`; in jiggle,
+`internal/config/config.go`, `demo-client/taskblaster.go`; in Jiggle,
 `cmd/jiggle/`, `share/share.go`, `internal/derive/make.go`; in Juke,
 `cmd/juke/`, `Makefile`
 
@@ -281,4 +281,4 @@ release and moving three consumers to it.  `v0`, `v1`, and the cost of
 `v2`.
 
 **Files to look at:** `go.mod`, `tailnet/go.mod`, `DESIGN.md` (Packages);
-the `go.mod` of each of TaskMaster, jiggle and Juke
+the `go.mod` of each of TaskMaster, Jiggle and Juke

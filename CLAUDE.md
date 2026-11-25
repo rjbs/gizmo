@@ -28,6 +28,6 @@ When writing unit content:
   language feature, for the first time, link to its official documentation:
   `pkg.go.dev` for the library, and the language specification or another
   page on `go.dev` for the language.
-- Every example is real code from Gizmo, TaskMaster, jiggle or Juke where
+- Every example is real code from Gizmo, TaskMaster, Jiggle or Juke where
   such code exists.  Cite it by file and line, and name the commits the unit
   was written against.

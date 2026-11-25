@@ -157,7 +157,7 @@ const (
 
 These are how Go spells what Rust would make an enum.  There are no enums.
 The nearest thing is a named integer type and a run of constants numbered by
-[`iota`](https://go.dev/ref/spec#Iota), which jiggle uses for its worker lanes
+[`iota`](https://go.dev/ref/spec#Iota), which Jiggle uses for its worker lanes
 and which we'll meet there.  The compiler doesn't check that a `switch` over
 them covers every case.
 
