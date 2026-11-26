@@ -3,9 +3,11 @@ site_description: >-
   A self-guided Go curriculum for an experienced programmer, using Gizmo and
   the JMAP servers built on it as the working examples throughout.
 
-# With no site_url, every link in the built site is relative, so the same
-# build serves from rjbs.github.io/gizmo or from a domain of its own.
-site_url: ""
+# The 404 page can be served at any depth, so it alone needs the site's path
+# to find its style sheets, and it takes that from here.  Every other page
+# links relatively.  If the site moves, change this, or the 404 page comes
+# out unstyled.
+site_url: https://semiotic.systems/gizmo/
 use_directory_urls: true
 
 copyright: >-
