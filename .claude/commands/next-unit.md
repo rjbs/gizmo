@@ -9,11 +9,11 @@ merge pulled in.
 Review the changes `main` brought in with that merge (`git diff
 <old-tip>..HEAD`, or the merge's second-parent diff).  The booklet also reads
 from three other repositories, `../TaskMaster`, `../jiggle` and `../Juke`.
-`learning/docs/SYLLABUS.md` records the commit of each that the text was last
+`learning/docs/index.md` records the commit of each that the text was last
 reconciled against; look at what each has done since (`git log
 <commit>..HEAD`).
 
-If those changes suggest that `learning/docs/SYLLABUS.md` should be updated for
+If those changes suggest that `learning/docs/index.md` should be updated for
 future units, make those changes.  Update the table of commits in the
 syllabus to the ones just reviewed.  Commit that.
 
@@ -36,7 +36,9 @@ Before committing, check the unit against the code: every file and line
 range in the code tour, every claim about what the code does, and every
 exercise, which you should try and then undo.
 
-Add the unit to the `nav` in `learning/mkdocs.yml`, then run
+Add the unit to the `nav` in `learning/mkdocs.yml`, and make its heading in
+the syllabus, which is the home page `learning/docs/index.md`, a link to
+it.  Then run
 `learning/build.sh`, which builds the site strictly and fails on a broken
 link.
 

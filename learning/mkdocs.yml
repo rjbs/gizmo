@@ -59,6 +59,5 @@ markdown_extensions:
 # A new unit must be added here, or it is built but appears in no menu.
 nav:
   - Home: index.md
-  - Syllabus: SYLLABUS.md
   - 1. Go as a Language: unit-01-go-language.md
   - Questions & Answers: questions.md

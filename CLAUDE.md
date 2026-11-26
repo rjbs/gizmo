@@ -3,7 +3,7 @@
 ## The Go learning booklet
 
 `learning/`, on the `go-learning` branch, is a booklet that teaches Go by
-way of Gizmo and the servers built on it.  `learning/docs/SYLLABUS.md` says how it
+way of Gizmo and the servers built on it.  `learning/docs/index.md` says how it
 is organized, and `/next-unit` writes the next unit.
 
 The site is built by Zensical from `learning/mkdocs.yml`:
