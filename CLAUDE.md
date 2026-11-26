@@ -31,3 +31,7 @@ When writing unit content:
 - Every example is real code from Gizmo, TaskMaster, Jiggle or Juke where
   such code exists.  Cite it by file and line, and name the commits the unit
   was written against.
+- Headings are in sentence case, as are titles and menu entries: "Code
+  tour", not "Code Tour".  A proper noun keeps its capital, and the word
+  after a colon does not get one.  A unit is titled "2. Types, methods, and
+  errors", with no "Unit", though prose still says "Unit 2".
