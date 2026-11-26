@@ -5,7 +5,7 @@ in Rust, and at home in JMAP, learning Go by reading Gizmo, a library for
 writing JMAP servers, and the servers built on it.  The aim is to be able to
 read, understand, test, and edit these systems, and other Go code besides.
 
-## How This Works
+## How this works
 
 Gizmo is the spine.  Its packages are small, each has one job, and they depend
 on one another in an order that is close to a teaching order.  Three servers
@@ -51,7 +51,7 @@ can see where the code has drifted from.  The syllabus was written against:
 
 ## Units
 
-### [1. Go as a Language](unit-01-go-language.md)
+### [1. Go as a language](unit-01-go-language.md)
 
 The language before the libraries, by way of the plainest code in Gizmo.
 Packages and files, and how a directory is a package.  Capitalization as
@@ -68,7 +68,7 @@ arguments about style.
 
 ---
 
-### 2. Types, Methods, and Errors
+### 2. Types, methods, and errors
 
 Structs, and methods as functions with a receiver.  Pointer receivers and
 value receivers, and how to tell which one a type wants.  Pointers without
@@ -85,7 +85,7 @@ it is so seldom the answer.
 
 ---
 
-### 3. JSON and Struct Tags
+### 3. JSON and struct tags
 
 `encoding/json` is the first standard library package worth knowing in
 depth, and a JMAP server is made of it.  Struct tags and reflection: Go's
@@ -102,7 +102,7 @@ method's arguments between the standard ones and a type's own.
 
 ---
 
-### 4. Functions as Values, and Context
+### 4. Functions as values, and context
 
 Function types, closures, and a map from names to functions: the method
 registry.  How a request travels through `Processor.Process`, call by call,
@@ -137,7 +137,7 @@ on JMAP::Tester.  Running one test, reading a failure, `-v`, `-run`,
 
 ---
 
-### 6. Interfaces and Generics
+### 6. Interfaces and generics
 
 Interfaces are satisfied by having the methods, with nothing declared: a
 trait with no `impl` line.  Small interfaces, defined by the code that uses
@@ -157,7 +157,7 @@ definitions.
 
 ---
 
-### 7. An Application on Gizmo
+### 7. An application on Gizmo
 
 The same hooks from the other side.  How TaskMaster is laid out: `cmd/` for
 the program, `internal/` for everything else, and what `internal` means to
@@ -212,7 +212,7 @@ The session resource and the API endpoint, end to end.
 
 ---
 
-### 10. Streams: `io`, Blobs, and the Client
+### 10. Streams: `io`, blobs, and the client
 
 `io.Reader` and `io.Writer`, the two interfaces the rest of the standard
 library is built from, and why almost nothing takes a filename.  Wrapping a
@@ -266,7 +266,7 @@ mounts Gizmo beside what else it serves.
 
 ---
 
-### 13. Modules, and Editing a Library Others Depend On
+### 13. Modules, and editing a library others depend on
 
 `go.mod` and `go.sum`: what they pin and what they prove.  Import paths as
 URLs, version tags as the only release mechanism, and minimal version

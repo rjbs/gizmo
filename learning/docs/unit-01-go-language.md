@@ -1,4 +1,4 @@
-# 1. Go as a Language
+# 1. Go as a language
 
 *Written against gizmo `f549a2d`.*
 
@@ -24,7 +24,7 @@ lacks them, but only as much as these files need.  Unit 2 is about them.
 
 ---
 
-## Packages, Files, and Imports
+## Packages, files, and imports
 
 A Go [package](https://go.dev/ref/spec#Packages) is a directory.  Every `.go`
 file in `jmap/` begins with `package jmap`, and together they are one package
@@ -74,7 +74,7 @@ Three rules that will bite early:
 
 ---
 
-## Names and Visibility
+## Names and visibility
 
 There is no `pub`.  A name that begins with a capital letter is
 [exported](https://go.dev/ref/spec#Exported_identifiers) from its package, and
@@ -163,7 +163,7 @@ them covers every case.
 
 ---
 
-## Zero Values
+## Zero values
 
 Every type has a [zero value](https://go.dev/ref/spec#The_zero_value), and
 every variable starts out holding it.  There is no uninitialized memory and no
@@ -198,7 +198,7 @@ structs in Unit 3 for exactly this reason.
 
 ---
 
-## The Basic Types
+## The basic types
 
 The [numeric types](https://go.dev/ref/spec#Numeric_types) are what you'd
 expect: `int8` through `int64`, the unsigned ones, `float32` and `float64`.
@@ -294,7 +294,7 @@ gets copied.
 
 ---
 
-## Control Flow
+## Control flow
 
 There is little of it, and no parentheses around conditions.
 
@@ -475,7 +475,7 @@ at `std/std.go:168` keeps one called `seen`.
 
 ---
 
-## `any`, Type Assertions, and Type Switches
+## `any`, type assertions, and type switches
 
 [`any`](https://pkg.go.dev/builtin#any) is a type that can hold a value of
 every type.  It's an [interface](https://go.dev/ref/spec#Interface_types) with
@@ -547,7 +547,7 @@ known until run time, which is the honest use.
 
 ---
 
-## Structs, and One Method
+## Structs, and one method
 
 A [struct](https://go.dev/ref/spec#Struct_types) is a record with named
 fields:
@@ -625,7 +625,7 @@ and those are the places where one would land wrong.
 
 ---
 
-## Printing and Formatting
+## Printing and formatting
 
 [`fmt`](https://pkg.go.dev/fmt) is `printf` with a few verbs worth learning
 on sight, since they're all over the error messages:
@@ -648,7 +648,7 @@ as an `error`.  It's the plainest way to make one.
 
 ---
 
-## What Isn't Here
+## What isn't here
 
 A list, so that you can stop looking for these.
 
@@ -685,7 +685,7 @@ Coming from Perl:
 
 ---
 
-## The Toolchain
+## The toolchain
 
 Everything is a subcommand of [`go`](https://pkg.go.dev/cmd/go).  The pattern
 `./...` means "this directory and everything under it".
@@ -733,7 +733,7 @@ applies…", "Limits are…".  That's the convention, and tools lean on it.
 
 ---
 
-## Code Tour
+## Code tour
 
 ### `jmap/limits.go`
 
