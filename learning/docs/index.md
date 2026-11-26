@@ -58,7 +58,7 @@ Packages and files, and how a directory is a package.  Capitalization as
 access control: there is no `pub`.  Declarations, `:=`, and zero values in
 place of constructors and `undef`.  Slices and maps, and what `make` and
 `append` do.  Multiple return values and the `value, ok` idiom.  `any`, type
-switches and type assertions, for values whose type is known only at run time:
+switches, and type assertions, for values whose type is known only at run time:
 decoded JSON, here.  What is absent, coming from Rust: no sum types, no
 `Option`, no `Result`, no ownership.  The toolchain as far as reading needs
 it: `go build`, `go test`, `go vet`, `go doc`, and `gofmt` as the end of all
@@ -146,7 +146,7 @@ run time, and the nil interface that isn't nil.  Then generics: type
 parameters and constraints, and how far they are from Rust's (no associated
 types, no specialization, no methods with type parameters of their own).
 `std` is the case study.  `Tx` is an interface, yet `Begin[T Tx]`,
-`Work[T]` and `Getter[T]` are generic over it: why both, and what an
+`Work[T]`, and `Getter[T]` are generic over it: why both, and what an
 application would lose if `std` took the interface alone.  A data type
 described by a struct of functions, where another design would have asked
 for an interface, and the trade between the two.  Type aliases against type
@@ -161,7 +161,7 @@ definitions.
 
 The same hooks from the other side.  How TaskMaster is laid out: `cmd/` for
 the program, `internal/` for everything else, and what `internal` means to
-the compiler.  A real type, the Task, filling in `Getter`, `Setter` and
+the compiler.  A real type, the Task, filling in `Getter`, `Setter`, and
 `Querier` with its own transaction type as `T`.  Where validation lives and
 how a `SetError` gets from a hook to the response.  Objects as
 `map[string]any` against objects as structs, and why a server for an
@@ -184,7 +184,7 @@ and why a `*sql.Tx` matters more in Go than a `$dbh` in a transaction does
 in Perl: the pool.  The `Queryer` interface, one small interface that lets
 a function take a database or a transaction.  Embedding earns its keep:
 `sqlitekit.Tx` is a `*sql.Tx` with more on it.  Savepoints by closure.
-Migrations as an appended list.  The state, modseq and tombstone
+Migrations as an appended list.  The state, modseq, and tombstone
 conventions as code, and `sqlitekit.Tx` satisfying `std.Tx` without either
 package naming the other's type.  A pure-Go SQLite, and what cgo would have
 cost.
@@ -201,7 +201,7 @@ The standard library's HTTP server is the one everybody uses.
 `http.Handler` is an interface of one method, and `http.HandlerFunc` is the
 trick that makes a function satisfy it.  `ServeMux` and its method-and-path
 patterns.  Middleware as a function from handler to handler: `Bearer`,
-`Loopback`, `Tailscale` and `Guard` each wrap the next.  A goroutine per
+`Loopback`, `Tailscale`, and `Guard` each wrap the next.  A goroutine per
 request, and what that means for anything shared.  How Gizmo's `Server` is
 itself a handler for the application to mount, and never owns the listener.
 Writing a response: headers, status, body, in that order and no other.
@@ -230,7 +230,7 @@ sends turned back into Go errors.
 
 ### 11. Concurrency
 
-Goroutines, channels and `select`.  Go's bet is the opposite of Rust's:
+Goroutines, channels, and `select`.  Go's bet is the opposite of Rust's:
 concurrency is easy to start and the compiler will not stop a data race,
 so the discipline is the programmer's, with the race detector's help.
 `sync.Mutex` around shared maps, as in the push broker.  A buffered channel
@@ -254,7 +254,7 @@ hand.  Configuration read from JSON and checked before anything starts.
 `log/slog` for structured logging.  Starting several listeners, waiting on
 a channel of errors, and shutting down on a signal.  `//go:embed`, by which
 a web client or a directory of templates is compiled into the binary.
-`os/exec`, for running vips, ffmpeg and rsync, with a context to kill them.
+`os/exec`, for running vips, ffmpeg, and rsync, with a context to kill them.
 Building: one static binary, cross-compiled by setting two environment
 variables, and what that does to deployment.  How each of the three servers
 mounts Gizmo beside what else it serves.
@@ -281,4 +281,4 @@ release and moving three consumers to it.  `v0`, `v1`, and the cost of
 `v2`.
 
 **Files to look at:** `go.mod`, `tailnet/go.mod`, `DESIGN.md` (Packages);
-the `go.mod` of each of TaskMaster, Jiggle and Juke
+the `go.mod` of each of TaskMaster, Jiggle, and Juke

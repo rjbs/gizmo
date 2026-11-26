@@ -13,7 +13,7 @@ copyright: >-
   questionable value to anybody else
 
 # From here to the nav, this file is the same as the Jinx manual's but for
-# the primary colour, so that the two look alike and can still be told
+# the primary color, so that the two look alike and can still be told
 # apart.  Change them together.
 theme:
   name: material

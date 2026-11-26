@@ -24,14 +24,16 @@ When writing unit content:
   comparison; use whichever language makes the concept clearest.
 - The reader understands generics from Rust and from functional languages.
   Don't put them off or soften them.
-- When mentioning a standard library package, type or function, or a
+- When mentioning a standard library package, type, or function, or a
   language feature, for the first time, link to its official documentation:
   `pkg.go.dev` for the library, and the language specification or another
   page on `go.dev` for the language.
-- Every example is real code from Gizmo, TaskMaster, Jiggle or Juke where
+- Every example is real code from Gizmo, TaskMaster, Jiggle, or Juke where
   such code exists.  Cite it by file and line, and name the commits the unit
   was written against.
 - Headings are in sentence case, as are titles and menu entries: "Code
   tour", not "Code Tour".  A proper noun keeps its capital, and the word
   after a colon does not get one.  A unit is titled "2. Types, methods, and
   errors", with no "Unit", though prose still says "Unit 2".
+- American spelling ("color", "canceled"), and the serial comma: "Snap,
+  Crackle, and Pop".

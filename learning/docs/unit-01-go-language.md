@@ -19,7 +19,7 @@ files in Gizmo: `jmap/pointer.go`, which resolves a JSON Pointer;
 struct and one method.  You know what all three are *for*, so the only new
 thing on the page is Go.
 
-Structs, methods, pointers and errors all appear here, because no Go file
+Structs, methods, pointers, and errors all appear here, because no Go file
 lacks them, but only as much as these files need.  Unit 2 is about them.
 
 ---
@@ -86,7 +86,7 @@ func resolveTokens(v any, tokens []string) // usable only inside package jmap
 ```
 
 That is the entire access control system.  It applies to functions, types,
-constants, variables, struct fields and methods alike.  The boundary is always
+constants, variables, struct fields, and methods alike.  The boundary is always
 the package: there is nothing like "private to this type" or "private to this
 file".  Every file in `jmap/` can see every unexported name in `jmap/`.
 
@@ -118,7 +118,7 @@ tok := UnescapeToken(raw)   // declared, type inferred: the usual form
 ```
 
 `:=` works only inside a function.  At package level you write `var`, `const`,
-`type` or `func`.
+`type`, or `func`.
 
 `=` assigns to a variable that already exists; `:=` makes a new one.  With
 several names on the left, `:=` needs only *one* of them to be new, and
@@ -144,7 +144,7 @@ for _, el := range cur {
 
 There is no immutability for variables.  Nothing corresponds to `let` against
 `let mut`.  [`const`](https://go.dev/ref/spec#Constant_declarations) exists,
-but only for numbers, strings and booleans known at compile time, as in the
+but only for numbers, strings, and booleans known at compile time, as in the
 block of error type names in `jmap/errors.go`:
 
 ```go
@@ -201,7 +201,7 @@ structs in Unit 3 for exactly this reason.
 ## The basic types
 
 The [numeric types](https://go.dev/ref/spec#Numeric_types) are what you'd
-expect: `int8` through `int64`, the unsigned ones, `float32` and `float64`.
+expect: `int8` through `int64`, the unsigned ones, `float32`, and `float64`.
 Then there is `int`, which is the size of a machine word (64 bits anywhere
 you'll run this) and is the type of every length and index.  `byte` is another
 name for `uint8`, and `rune` is another name for `int32` and holds a Unicode
@@ -723,8 +723,8 @@ applies…", "Limits are…".  That's the convention, and tools lean on it.
 - [Effective Go](https://go.dev/doc/effective_go) predates generics and
   modules and says so, but remains the best account of the idioms
 - [Go Slices: usage and internals](https://go.dev/blog/slices-intro) covers
-  the pointer, length and capacity model, with pictures
-- [Strings, bytes, runes and characters in Go](https://go.dev/blog/strings)
+  the pointer, length, and capacity model, with pictures
+- [Strings, bytes, runes, and characters in Go](https://go.dev/blog/strings)
 - [Go maps in action](https://go.dev/blog/maps)
 - [Go Doc Comments](https://go.dev/doc/comment) gives the conventions that
   `go doc` relies on
@@ -778,7 +778,7 @@ succeeding one the error is.  `pointer[1:]` drops the leading `/` as a byte.
   Without the bounds check, line 59 would panic on a bad index, and a panic
   in a server is a much worse answer than an error.
 - **Lines 60–61** are the `default`, for a pointer that tries to pass
-  through a string, a number or a null.
+  through a string, a number, or a null.
 
 ### `jmap/patch.go`
 
@@ -826,7 +826,7 @@ Notice that `resolveTokens` isn't in the package listing, and that
 **2.  Break something and read the failure.**  In `jmap/patch.go`, change
 line 48 from `if val == nil {` to `if false {`.  Run `go test ./jmap`.  Three
 cases fail.  Before reading the output, guess which.  Then look at what a
-failure tells you: the file and line of the *case*, its name, what was got
+failure tells you: the file and line of the *case*, its name, what was got,
 and what was wanted.
 
 **3.  Meet the compiler's strictness.**  In `UnescapeToken`, add a line
