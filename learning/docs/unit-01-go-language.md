@@ -1,4 +1,4 @@
-# Unit 1: Go as a Language
+# 1. Go as a Language
 
 *Written against gizmo `f549a2d`.*
 
