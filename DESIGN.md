@@ -4,9 +4,9 @@ Gizmo is a Go library for writing JMAP ([RFC 8620][rfc]) servers for new
 data types.  It is being extracted from two working servers and is meant to
 carry a third:
 
-- **[Juke](https://github.com/rjbs/Juke):** an MP3 library server with its
+- **[Juke](https://github.com/rjbs/juke):** an MP3 library server with its
   own object types.
-- **[TaskMaster](https://github.com/rjbs/TaskMaster):** a server for the
+- **[TaskMaster](https://github.com/rjbs/taskmaster):** a server for the
   JMAP for Tasks draft.
 - **Jiggle:** a photo gallery, to be written on Gizmo from the start.
 
