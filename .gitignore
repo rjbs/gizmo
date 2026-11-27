@@ -3,3 +3,6 @@
 
 # The manual, written from doc comments when the site is built
 /doc/web/docs/manual/
+
+# Copied in from imprint by its build-site
+/doc/web/docs/imprint.css
