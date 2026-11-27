@@ -6,6 +6,8 @@ on:
     paths:
       - 'doc/web/**'
       - '.github/workflows/pages.yml'
+      - '**.go'
+      - 'go.mod'
   workflow_dispatch:
 
 permissions:
@@ -29,8 +31,15 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
       - name: Install Zensical
         run: pip install -r doc/web/requirements.txt
+
+      - name: Write the manual
+        run: doc/web/prepare
 
       - name: Build site
         run: zensical build --clean --strict

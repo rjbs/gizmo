@@ -62,9 +62,22 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
 
-# A new unit must be added here, or it is built but appears in no menu.
+# A new unit must be added here, or it is built but appears in no menu.  So
+# must a new package, and prepare fails until it is.
 nav:
   - Home: index.md
+  - Manual:
+    - manual/index.md
+    - auth: manual/auth.md
+    - blob: manual/blob.md
+    - client: manual/client.md
+    - httpd: manual/httpd.md
+    - internal/bakery: manual/internal/bakery.md
+    - jmap: manual/jmap.md
+    - jmaptest: manual/jmaptest.md
+    - push: manual/push.md
+    - sqlitekit: manual/sqlitekit.md
+    - std: manual/std.md
   - Learning:
     - learning/index.md
     - 1. Go as a language: learning/unit-01-go-language.md

@@ -1,2 +1,5 @@
 # The built site
 /doc/web/site/
+
+# The manual, written from doc comments when the site is built
+/doc/web/docs/manual/
