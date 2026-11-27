@@ -53,7 +53,6 @@ func (s *Session) Limits() Limits {
 // itself.
 //
 // This is after the Batch of the JMAP client in Loose Threads.
-// -- claude, 2026-11-23
 func (c *Client) Batch(ctx context.Context, groups ...[]Call) (*Response, error) {
 	s, err := c.Session(ctx)
 	if err != nil {

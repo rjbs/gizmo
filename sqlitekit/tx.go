@@ -314,7 +314,7 @@ func (k *Kit) Purge(ctx context.Context, q Queryer, typ string, before time.Time
 // updated, though it was in no earlier answer: its change moved it past
 // the cut.  This is known and left alone; Cyrus and Ix do the same, and a
 // client has to take an updated id it doesn't hold for a creation.  See
-// DESIGN.md.  -- claude, 2026-11-23
+// DESIGN.md.
 func (k *Kit) Changes(ctx context.Context, q Queryer, typ, since string, max int) (*std.Changed, error) {
 	ty, err := k.typ(typ)
 	if err != nil {

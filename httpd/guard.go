@@ -34,7 +34,6 @@ import (
 //
 // A Server guards itself.  To guard what an application serves beside it,
 // give the Server's Guard the application's handler.
-// -- claude, 2026-11-23
 type Guard struct {
 	origins *http.CrossOriginProtection
 
