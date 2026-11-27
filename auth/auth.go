@@ -226,7 +226,7 @@ func (d *Directory) LoopbackUser() *User { return d.loopback }
 //
 // Only digests are stored, so the lookup compares digests of the token
 // rather than the token itself, and a map lookup's timing reveals nothing
-// useful about any stored token.  -- claude, 2026-11-07
+// useful about any stored token.
 func (d *Directory) BearerUser(token string) *User {
 	return d.bearer[HashToken(token)]
 }
