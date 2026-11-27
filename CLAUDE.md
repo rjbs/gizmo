@@ -8,10 +8,11 @@ and `/next-unit` writes the next unit.
 
 The booklet is one section of Gizmo's site, which Zensical builds from
 `doc/web/mkdocs.yml`: `doc/web/build.sh` builds it in Docker, and
-`doc/web/build.sh serve` previews it.  The theme and Markdown settings in
-`mkdocs.yml`, and the rules in `doc/web/docs/extra.css`, are kept the same
-as those of the Jinx manual (`../Jinx/doc/manual/mkdocs.yml`), except
-where `mkdocs.yml` says otherwise.
+`doc/web/build.sh serve` previews it.  The theme, the Markdown settings,
+the shared style rules, the build, and the deploy come from imprint, in
+`../semiotic-imprint`, which every Semiotic Systems site shares; its README
+says what a site may and may not set itself.  A change to how the sites
+look or are built belongs there, not here.
 
 The site's manual is written from the packages' doc comments by
 `cmd/godocmd`, which `doc/web/prepare` runs before every build.  Its pages are
