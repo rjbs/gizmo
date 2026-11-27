@@ -32,9 +32,8 @@ import (
 // "localhost" is always let by, because those can't be made to mean some
 // other machine.
 //
-// A Server guards itself.  To guard what an application serves beside it,
+// A [Server] guards itself.  To guard what an application serves beside it,
 // give the Server's Guard the application's handler.
-// -- claude, 2026-11-23
 type Guard struct {
 	origins *http.CrossOriginProtection
 
@@ -42,7 +41,7 @@ type Guard struct {
 	hosts map[string]bool
 }
 
-// NewGuard returns a Guard for a server known by the names given.
+// NewGuard returns a [Guard] for a server known by the names given.
 func NewGuard(names ...string) *Guard {
 	g := &Guard{origins: http.NewCrossOriginProtection(), hosts: map[string]bool{"localhost": true}}
 	g.AllowHost(names...)

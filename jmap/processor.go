@@ -13,7 +13,7 @@ import (
 // Handler implements one JMAP method.  It is given the call's arguments, with
 // any result references already resolved, and returns the arguments of its
 // response, which may be anything that encodes as a JSON object.  Returning a
-// *MethodError produces an "error" response.  Any other error is logged and
+// *[MethodError] produces an "error" response.  Any other error is logged and
 // becomes serverFail, with nothing of the error told to the client.
 type Handler func(c *Call, args json.RawMessage) (any, error)
 
@@ -22,7 +22,7 @@ type method struct {
 	handler    Handler
 }
 
-// Processor dispatches the method calls of a Request.
+// Processor dispatches the method calls of a [Request].
 type Processor struct {
 	methods      map[string]method
 	capabilities map[string]bool
@@ -37,7 +37,7 @@ type Processor struct {
 	Logger *slog.Logger
 }
 
-// NewProcessor returns a Processor that knows only the core capability and
+// NewProcessor returns a [Processor] that knows only the core capability and
 // its one method, Core/echo.
 func NewProcessor() *Processor {
 	p := &Processor{
@@ -97,8 +97,8 @@ type Call struct {
 }
 
 // Context returns the call's context.  It carries the request's id and
-// capabilities, for RequestID and Using, as well as whatever the HTTP layer
-// put there, such as the caller's identity.
+// capabilities, for [RequestID] and [Using], as well as whatever the HTTP
+// layer put there, such as the caller's identity.
 func (c *Call) Context() context.Context { return c.ctx }
 
 // CreatedID returns the id recorded for a creation id earlier in the request,
@@ -166,8 +166,8 @@ func newRequestID() string {
 	return hex.EncodeToString(b)
 }
 
-// Process runs each method call in req, in order, and returns the Response,
-// or a RequestError if the request as a whole can't be accepted.
+// Process runs each method call in req, in order, and returns the [Response],
+// or a [RequestError] if the request as a whole can't be accepted.
 func (p *Processor) Process(ctx context.Context, req *Request) (*Response, *RequestError) {
 	using := map[string]bool{}
 	for _, u := range req.Using {

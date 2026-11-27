@@ -1,8 +1,8 @@
 // Package httpd serves JMAP over HTTP: the session resource, the API
 // endpoint, the event source, and the blob endpoints.
 //
-// A Server is an http.Handler for the application to mount on its own mux,
-// beside whatever else it serves.  It answers these paths:
+// A [Server] is an [http.Handler] for the application to mount on its own
+// mux, beside whatever else it serves.  It answers these paths:
 //
 //	GET  /.well-known/jmap
 //	GET  /jmap/session
@@ -14,8 +14,8 @@
 // Every request must already carry an authenticated user in its context, put
 // there by the auth package's middleware; the Server refuses anything else.
 //
-// The Server also refuses what its Guard does: requests that a browser makes
-// for a page from somewhere else, and requests addressed to a name the
+// The Server also refuses what its [Guard] does: requests that a browser
+// makes for a page from somewhere else, and requests addressed to a name the
 // server isn't known by.
 package httpd
 
@@ -36,7 +36,7 @@ import (
 	"github.com/rjbs/gizmo/push"
 )
 
-// Account is what the Server needs to know of one account's data.
+// Account is what the [Server] needs to know of one account's data.
 type Account interface {
 	// Capabilities is the account's accountCapabilities object: each
 	// capability the account supports, with that capability's details.
@@ -47,7 +47,7 @@ type Account interface {
 	States(ctx context.Context) (map[string]string, error)
 }
 
-// Config configures a Server.
+// Config configures a [Server].
 type Config struct {
 	// BaseURL, if set, is used to build the URLs in the session object.
 	// Otherwise they are worked out from each request.

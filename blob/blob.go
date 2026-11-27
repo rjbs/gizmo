@@ -2,9 +2,9 @@
 // download endpoints (RFC 8620 §6).
 //
 // The application decides what a blob id is and where the bytes live, by
-// implementing Store.  The endpoints, in package httpd, see to the rest: who
-// may use the account, how large an upload may be, how many may run at once,
-// and range requests on the way down.
+// implementing [Store].  The endpoints, in package httpd, see to the rest:
+// who may use the account, how large an upload may be, how many may run at
+// once, and range requests on the way down.
 //
 // A blob id always names the same bytes.  RFC 8620 requires it, and the
 // download endpoint tells clients they may keep what they fetch for good.
@@ -26,13 +26,13 @@ import (
 var ErrNotFound = errors.New("blob: no such blob")
 
 // ErrTooLarge is the error an Upload's Body gives when the upload has run
-// past the largest size the server accepts.  A Store that gets it from a
+// past the largest size the server accepts.  A [Store] that gets it from a
 // read should give up and return it, having kept nothing.
 var ErrTooLarge = errors.New("blob: the upload is larger than the server accepts")
 
-// Refusal is an error a Store returns to turn an upload down for a reason of
-// its own, such as a kind of content it has no use for.  The client is sent
-// the status and the detail.
+// Refusal is an error a [Store] returns to turn an upload down for a reason
+// of its own, such as a kind of content it has no use for.  The client is
+// sent the status and the detail.
 type Refusal struct {
 	// Status is the HTTP status to answer with, such as 415.
 	Status int
@@ -102,7 +102,7 @@ type Received struct {
 // Receive writes a stream to a new file in dir, working out its SHA-256 and
 // its size as the bytes go by, so that a blob of any size can be taken in
 // and named for its content without being held in memory or read twice.  If
-// the stream fails, as it does with ErrTooLarge for an upload that is too
+// the stream fails, as it does with [ErrTooLarge] for an upload that is too
 // big, the file is removed and the error returned.
 //
 // The file is made in dir so that it can be renamed into place there, or

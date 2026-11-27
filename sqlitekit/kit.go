@@ -11,7 +11,7 @@
 //	modseq         INTEGER NOT NULL
 //
 // The table holds only live objects.  When an object is made, changed or
-// destroyed, the application says so through a Tx, which gives the object
+// destroyed, the application says so through a [Tx], which gives the object
 // the next modseq of its type and, for a destroy, deletes its row and
 // leaves a tombstone.  The kit has three tables of its own, each named
 // gizmo_ and something.
@@ -60,7 +60,7 @@ type Kit struct {
 	names []string
 }
 
-// New returns a Kit for the given types.
+// New returns a [Kit] for the given types.
 func New(types ...Type) *Kit {
 	k := &Kit{Now: time.Now, types: map[string]Type{}}
 	for _, t := range types {
@@ -81,7 +81,7 @@ func (k *Kit) typ(name string) (Type, error) {
 	return t, nil
 }
 
-// Queryer is what a *sql.DB, a *sql.Tx and a *sql.Conn have in common.
+// Queryer is what a *[sql.DB], a *[sql.Tx] and a *[sql.Conn] have in common.
 type Queryer interface {
 	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
 	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)

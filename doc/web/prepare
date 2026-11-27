@@ -1,0 +1,26 @@
+#!/bin/sh
+# Writes the manual, one page for each of Gizmo's packages, from their doc
+# comments, into doc/web/docs/manual/.  The pages are made fresh for every
+# build and never committed.  Each links to its source at the commit being
+# built.
+#
+#   doc/web/prepare
+set -e
+cd "$(dirname "$0")/../.."
+
+rev=$(git rev-parse HEAD)
+rm -rf doc/web/docs/manual
+go run ./cmd/godocmd \
+  -out doc/web/docs/manual \
+  -source "https://github.com/rjbs/gizmo/blob/$rev"
+
+# Zensical builds a page that the nav doesn't list without complaint, and
+# it then appears in no menu, so a new package must be caught here.
+missing=0
+for page in $(cd doc/web/docs && find manual -name '*.md' | sort); do
+  if ! grep -q " $page\$" doc/web/mkdocs.yml; then
+    echo "prepare: $page is not in the nav in doc/web/mkdocs.yml" >&2
+    missing=1
+  fi
+done
+exit $missing

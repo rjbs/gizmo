@@ -44,7 +44,7 @@ type Bakery struct {
 	pantry   *pantry
 }
 
-// New returns a Bakery with nothing baked.  The limits are those the server
+// New returns a [Bakery] with nothing baked.  The limits are those the server
 // advertises and enforces; zero fields take the defaults.
 func New(limits jmap.Limits) *Bakery {
 	b := &Bakery{Broker: push.NewBroker(), Processor: jmap.NewProcessor(), accounts: map[string]*Account{}, pantry: newPantry()}

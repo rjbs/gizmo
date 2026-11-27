@@ -35,7 +35,7 @@ func NewToken(prefix string) (string, error) {
 	return prefix + body + tokenChecksum(body), nil
 }
 
-// WellFormedToken reports whether token has the shape NewToken gives it for
+// WellFormedToken reports whether token has the shape [NewToken] gives it for
 // the prefix, and a correct checksum.  It says nothing about whether any
 // user holds it.
 func WellFormedToken(prefix, token string) bool {

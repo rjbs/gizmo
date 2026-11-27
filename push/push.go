@@ -1,8 +1,8 @@
 // Package push carries state changes from whatever makes them to whoever is
 // listening, such as the event source connections of RFC 8620 §7.3.
 //
-// Anything may publish: the commit of a /set, a background worker, or Watch,
-// which looks for changes made by other processes.
+// Anything may publish: the commit of a /set, a background worker, or
+// [Watch], which looks for changes made by other processes.
 package push
 
 import (

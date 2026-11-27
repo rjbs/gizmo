@@ -45,7 +45,7 @@ func (s *Session) Limits() Limits {
 // different groups may not, and nor may they refer to one another's
 // creation ids.
 //
-// The answer is one Response, as if there had been one request: the results
+// The answer is one [Response], as if there had been one request: the results
 // of all, in order, and the created ids of all.  A call given no id gets
 // its place among all the calls of the batch, "0", "1", and so on.  If a
 // request fails, the requests before it have still been made, and their
@@ -53,7 +53,6 @@ func (s *Session) Limits() Limits {
 // itself.
 //
 // This is after the Batch of the JMAP client in Loose Threads.
-// -- claude, 2026-11-23
 func (c *Client) Batch(ctx context.Context, groups ...[]Call) (*Response, error) {
 	s, err := c.Session(ctx)
 	if err != nil {

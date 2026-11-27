@@ -8,7 +8,7 @@
 // what it asks for.
 //
 // Numbers come two ways.  Where a response is given as a map, as in a
-// Sentence's Args, a number is a json.Number, so that none is rounded.
+// Sentence's [Args], a number is a [json.Number], so that none is rounded.
 // Where a test has a response decoded into a value of its own, with
 // Decode, a number is whatever that value makes of it, which for a map is
 // a float64.
@@ -45,7 +45,7 @@ type Tester struct {
 	HTTP *http.Client
 }
 
-// New returns a Tester for the server at baseURL.
+// New returns a [Tester] for the server at baseURL.
 func New(t testing.TB, baseURL string, using ...string) *Tester {
 	return &Tester{T: t, BaseURL: strings.TrimSuffix(baseURL, "/"), Using: using, HTTP: http.DefaultClient}
 }
@@ -79,7 +79,7 @@ type Call struct {
 	ID string
 }
 
-// Do makes a Call.
+// Do makes a [Call].
 func Do(name string, args Args) Call {
 	return Call{Name: name, Args: args}
 }
