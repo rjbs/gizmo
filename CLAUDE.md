@@ -2,20 +2,21 @@
 
 ## The Go learning booklet
 
-`learning/`, on the `go-learning` branch, is a booklet that teaches Go by
-way of Gizmo and the servers built on it.  `learning/docs/index.md` says how it
-is organized, and `/next-unit` writes the next unit.
+`doc/web/docs/learning/` is a booklet that teaches Go by way of Gizmo and the
+servers built on it.  Its first page, `index.md`, says how it is organized,
+and `/next-unit` writes the next unit.
 
-The site is built by Zensical from `learning/mkdocs.yml`:
-`learning/build.sh` builds it in Docker, and `learning/build.sh serve`
-previews it.  The theme and Markdown settings in `mkdocs.yml`, and the rules
-in `learning/docs/extra.css`, are kept the
-same as those of the Jinx manual (`../Jinx/doc/manual/mkdocs.yml`).
+The booklet is one section of Gizmo's site, which Zensical builds from
+`doc/web/mkdocs.yml`: `doc/web/build.sh` builds it in Docker, and
+`doc/web/build.sh serve` previews it.  The theme and Markdown settings in
+`mkdocs.yml`, and the rules in `doc/web/docs/extra.css`, are kept the same
+as those of the Jinx manual (`../Jinx/doc/manual/mkdocs.yml`), except
+where `mkdocs.yml` says otherwise.
 
 When the user asks a question about Go, or about this code as Go, during a
-learning discussion, log it to `learning/docs/questions.md` under the heading of
-the unit it came from, with the answer you gave, then commit it.  Do this
-automatically without being prompted.
+learning discussion, log it to `doc/web/docs/learning/questions.md` under
+the heading of the unit it came from, with the answer you gave, then commit
+it.  Do this automatically without being prompted.
 
 When writing unit content:
 

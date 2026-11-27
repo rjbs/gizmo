@@ -1,7 +1,7 @@
-site_name: Learning Go from Gizmo
+site_name: Gizmo
 site_description: >-
-  A self-guided Go curriculum for an experienced programmer, using Gizmo and
-  the JMAP servers built on it as the working examples throughout.
+  Gizmo, a library for writing JMAP servers in Go: its reference manual, and
+  a booklet that teaches Go by way of it.
 
 # The 404 page can be served at any depth, so it alone needs the site's path
 # to find its style sheets, and it takes that from here.  Every other page
@@ -16,7 +16,9 @@ copyright: >-
 
 # From here to the nav, this file is the same as the Jinx manual's but for
 # the primary color, so that the two look alike and can still be told
-# apart.  Change them together.
+# apart, and for navigation.indexes and navigation.tabs, which this site
+# needs because it has sections and the manual does not.  Change them
+# together.
 theme:
   name: material
   palette:
@@ -33,6 +35,8 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
   features:
+    - navigation.indexes
+    - navigation.tabs
     - content.code.copy
     - navigation.footer
     - navigation.top
@@ -61,5 +65,7 @@ markdown_extensions:
 # A new unit must be added here, or it is built but appears in no menu.
 nav:
   - Home: index.md
-  - 1. Go as a language: unit-01-go-language.md
-  - Questions & answers: questions.md
+  - Learning:
+    - learning/index.md
+    - 1. Go as a language: learning/unit-01-go-language.md
+    - Questions & answers: learning/questions.md
