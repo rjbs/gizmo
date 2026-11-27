@@ -277,7 +277,13 @@ func (w *writer) values(title string, values []*doc.Value) {
 	}
 }
 
+// value writes a group of constants or variables.  Having no heading of its
+// own, each name in it is given its anchor by an empty HTML element.
 func (w *writer) value(v *doc.Value) {
+	for _, name := range v.Names {
+		fmt.Fprintf(&w.b, "<a id=\"%s\"></a>\n", name)
+	}
+	w.b.WriteString("\n")
 	w.decl(v.Decl)
 	w.comment(v.Doc, 4)
 }
