@@ -10,8 +10,8 @@
 // application's own kind, and hands that to the type's functions.
 //
 // The same parts are there for an application's own methods.  One that
-// writes, like an /import, can use Transact and Work to get what /set has: a
-// transaction for the call, and a savepoint for each item in it.
+// writes, like an /import, can use [Transact] and [Work] to get what /set
+// has: a transaction for the call, and a savepoint for each item in it.
 package std
 
 import (
@@ -67,7 +67,7 @@ type Work[T Tx] struct {
 func (w *Work[T]) Context() context.Context { return w.ctx }
 
 // Do runs one item of the work, such as the creation of one object, in a
-// savepoint.  If fn returns a *jmap.SetError, what it wrote is undone and
+// savepoint.  If fn returns a *[jmap.SetError], what it wrote is undone and
 // the SetError is returned for the method to report against that item; the
 // rest of the work stands.  Any other error is returned as the second value,
 // and should end the method.

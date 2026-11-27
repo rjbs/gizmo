@@ -18,6 +18,12 @@ The site's manual is written from the packages' doc comments by
 not committed.  A new package must be added to the Manual section of the
 `nav`, or `prepare` fails.
 
+In a doc comment, name another declaration as a doc link, like `[Store]`,
+`[jmap.SetError]`, or `[http.Handler]`, at least on its first mention, so
+that the manual links to it.  The strict build fails on a link to a name
+the manual has no anchor for, but a name Go can't resolve at all, such as
+one from a package the file doesn't import, is left as bracketed text.
+
 When the user asks a question about Go, or about this code as Go, during a
 learning discussion, log it to `doc/web/docs/learning/questions.md` under
 the heading of the unit it came from, with the answer you gave, then commit

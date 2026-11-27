@@ -2,10 +2,10 @@
 // importers, command-line tools, and the like.  It knows the protocol and
 // nothing of any data type.
 //
-// A Client finds the server's session, makes API requests of one or more
+// A [Client] finds the server's session, makes API requests of one or more
 // method calls, and uploads and downloads blobs.  What a server refuses
-// comes back as an error: a *RequestError when the request as a whole was
-// refused, and a *MethodError when one method call was.
+// comes back as an error: a *[RequestError] when the request as a whole was
+// refused, and a *[MethodError] when one method call was.
 //
 // For testing a server, see the jmaptest package, which fails a test where
 // this package returns an error.
@@ -56,7 +56,7 @@ type Client struct {
 	session *Session
 }
 
-// New returns a Client of the server at baseURL, whose requests use the
+// New returns a [Client] of the server at baseURL, whose requests use the
 // given capabilities.
 func New(baseURL string, using ...string) *Client {
 	return &Client{BaseURL: baseURL, Using: using}
@@ -253,7 +253,7 @@ type Call struct {
 	ID string
 }
 
-// Do makes a Call.
+// Do makes a [Call].
 func Do(name string, args Args) Call {
 	return Call{Name: name, Args: args}
 }
@@ -314,7 +314,7 @@ type Result struct {
 	method string
 }
 
-// Err returns the *MethodError that the result is, or nil if it is not an
+// Err returns the *[MethodError] that the result is, or nil if it is not an
 // error.
 func (r *Result) Err() error {
 	if r.Name != "error" {
@@ -435,7 +435,7 @@ func (c *Client) Request(ctx context.Context, calls ...Call) (*Response, error) 
 
 // Call makes a request of one method call, and decodes the arguments of its
 // response into out, which may be nil if they aren't wanted.  A method-level
-// error is returned as a *MethodError.
+// error is returned as a *[MethodError].
 func (c *Client) Call(ctx context.Context, method string, args Args, out any) error {
 	resp, err := c.Request(ctx, Do(method, args))
 	if err != nil {

@@ -17,12 +17,12 @@ func (e *MethodError) Error() string {
 	return e.Type + ": " + e.Description
 }
 
-// Errorf builds a MethodError with a formatted description.
+// Errorf builds a [MethodError] with a formatted description.
 func Errorf(typ, format string, args ...any) *MethodError {
 	return &MethodError{Type: typ, Description: fmt.Sprintf(format, args...)}
 }
 
-// ArgError builds an invalidArguments MethodError.
+// ArgError builds an invalidArguments [MethodError].
 func ArgError(format string, args ...any) *MethodError {
 	return Errorf(ErrInvalidArguments, format, args...)
 }
@@ -60,7 +60,7 @@ func (e *SetError) Error() string {
 	return e.Type + ": " + e.Description
 }
 
-// The SetError types of RFC 8620 §5.3 and §5.4.
+// The [SetError] types of RFC 8620 §5.3 and §5.4.
 const (
 	SetErrForbidden         = "forbidden"
 	SetErrOverQuota         = "overQuota"
@@ -74,19 +74,19 @@ const (
 	SetErrAlreadyExists     = "alreadyExists"
 )
 
-// InvalidProperties builds an invalidProperties SetError naming the
+// InvalidProperties builds an invalidProperties [SetError] naming the
 // properties at fault.
 func InvalidProperties(desc string, props ...string) *SetError {
 	return &SetError{Type: SetErrInvalidProperties, Description: desc, Properties: props}
 }
 
-// AlreadyExists is the SetError for a create that duplicates an existing
+// AlreadyExists is the [SetError] for a create that duplicates an existing
 // record.  It carries the id of the record that already exists.
 func AlreadyExists(desc, existingID string) *SetError {
 	return &SetError{Type: SetErrAlreadyExists, Description: desc, ExistingID: existingID}
 }
 
-// NotFound is the SetError for an unknown id.
+// NotFound is the [SetError] for an unknown id.
 func NotFound() *SetError {
 	return &SetError{Type: SetErrNotFound}
 }

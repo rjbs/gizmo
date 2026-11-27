@@ -21,7 +21,7 @@ type SetRequest struct {
 	Destroy []string `json:"destroy"`
 }
 
-// ParseSet decodes the arguments of a /set, in the way of ParseGet.
+// ParseSet decodes the arguments of a /set, in the way of [ParseGet].
 func ParseSet(raw json.RawMessage, extra any) (*SetRequest, error) {
 	var req SetRequest
 	if err := decode(raw, &req, extra); err != nil {
@@ -32,8 +32,8 @@ func ParseSet(raw json.RawMessage, extra any) (*SetRequest, error) {
 
 // Setter is what a type supplies for its /set.  Each function does its work
 // on one object, in a savepoint of the method's transaction.  When it returns
-// a *jmap.SetError, whatever it wrote is undone, including anything it did to
-// other objects, and the error is reported against that object alone.  Any
+// a *[jmap.SetError], whatever it wrote is undone, including anything it did
+// to other objects, and the error is reported against that object alone.  Any
 // other error fails the method, and nothing the method did is kept.
 //
 // A function that is nil refuses every object with a "forbidden" SetError.

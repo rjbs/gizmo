@@ -6,7 +6,7 @@ import "strings"
 // value removes the property; anything else sets it.  Callers that have
 // defaults for properties must reinstate them afterwards, since this
 // function cannot know them.  Structural violations are reported as an
-// invalidPatch SetError, and obj may be partly modified when one is
+// invalidPatch [SetError], and obj may be partly modified when one is
 // returned, so callers should discard it in that case.
 func ApplyPatch(obj map[string]any, patch map[string]any) *SetError {
 	keys := make([]string, 0, len(patch))

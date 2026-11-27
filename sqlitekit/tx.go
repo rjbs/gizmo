@@ -11,12 +11,12 @@ import (
 	"github.com/rjbs/gizmo/std"
 )
 
-// Tx is a transaction on one account's database.  It is a *sql.Tx, for the
+// Tx is a transaction on one account's database.  It is a *[sql.Tx], for the
 // application's own reading and writing, with the kit's operations as
 // methods, so that they need not be handed the transaction each time.  It is
-// also a std.Tx, so that the standard methods can run in it.
+// also a [std.Tx], so that the standard methods can run in it.
 //
-// The kit's operations are also methods of Kit that take a Queryer, for
+// The kit's operations are also methods of [Kit] that take a [Queryer], for
 // code that has a plain *sql.Tx, or none.  It makes no difference which are
 // used: a Tx learns what changed from the database, not from having been
 // told.
@@ -300,7 +300,7 @@ func (k *Kit) Purge(ctx context.Context, q Queryer, typ string, before time.Time
 	return int(n), err
 }
 
-// Changes finds what has changed in a type since a state, for std.Changes.
+// Changes finds what has changed in a type since a state, for [std.Changes].
 // It returns at most max ids, or any number if max is zero.
 //
 // A state from another epoch, one older than the tombstones go back, and

@@ -16,7 +16,7 @@ type ChangesRequest struct {
 	MaxChanges *int `json:"maxChanges"`
 }
 
-// ParseChanges decodes the arguments of a /changes, in the way of ParseGet.
+// ParseChanges decodes the arguments of a /changes, in the way of [ParseGet].
 func ParseChanges(raw json.RawMessage, extra any) (*ChangesRequest, error) {
 	var all map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &all); err == nil && all["sinceState"] == nil {

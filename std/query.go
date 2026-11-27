@@ -29,7 +29,7 @@ type QueryRequest struct {
 	CalculateTotal bool `json:"calculateTotal"`
 }
 
-// ParseQuery decodes the arguments of a /query, in the way of ParseGet.
+// ParseQuery decodes the arguments of a /query, in the way of [ParseGet].
 func ParseQuery(raw json.RawMessage, extra any) (*QueryRequest, error) {
 	var req QueryRequest
 	if err := decode(raw, &req, extra); err != nil {

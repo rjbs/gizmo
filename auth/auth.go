@@ -1,6 +1,6 @@
 // Package auth knows who is asking.  It holds the directory of users,
 // accounts and credentials, and provides the HTTP middleware that turns a
-// connection into an authenticated User in the request context.
+// connection into an authenticated [User] in the request context.
 //
 // The model is small on purpose.  A user is an actor who can authenticate.
 // An account is a JMAP account, a separate body of data, owned by exactly
@@ -26,7 +26,7 @@ import (
 	"strings"
 )
 
-// Credential types.
+// [Credential] types.
 const (
 	// CredLoopback means "a request arriving on the plain, unauthenticated
 	// listener".  At most one user may hold it.
@@ -202,7 +202,7 @@ func claimedTwice(first, second, what string) error {
 
 // Solo returns the directory of a server with one user, who owns its one
 // account, and is who every request acts as.  It is to be used with
-// Loopback: who may make requests at all is for whoever lets them in to
+// [Loopback]: who may make requests at all is for whoever lets them in to
 // decide, by where the server listens and what stands in front of it.
 func Solo(username, accountID string) *Directory {
 	d, err := NewDirectory(
@@ -282,7 +282,7 @@ func Bearer(d *Directory, reject func(r *http.Request, why string), next http.Ha
 }
 
 // Loopback is middleware for the plain listener: every request acts as the
-// loopback user, unless it has already been authenticated, as by Bearer.
+// loopback user, unless it has already been authenticated, as by [Bearer].
 // With no loopback user configured, every other request is refused.
 func Loopback(d *Directory, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -313,7 +313,7 @@ type WhoIsFunc func(ctx context.Context, remoteAddr string) (Identity, error)
 
 // Tailscale is middleware for the tailnet listener: the request acts as the
 // user holding the connecting node's login as a credential, unless it has
-// already been authenticated, as by Bearer.  Otherwise, tagged nodes
+// already been authenticated, as by [Bearer].  Otherwise, tagged nodes
 // have no user and are refused, as is any login nobody holds.  Refusals are
 // reported through reject, so an operator can see which login to add.
 func Tailscale(d *Directory, whois WhoIsFunc, reject func(r *http.Request, why string), next http.Handler) http.Handler {

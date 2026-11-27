@@ -65,7 +65,7 @@ type Response struct {
 }
 
 // ParseRequest decodes the body of an API request.  A body that isn't JSON is
-// a notJSON error, and JSON that isn't a Request object is notRequest.
+// a notJSON error, and JSON that isn't a [Request] object is notRequest.
 // Members of the object that RFC 8620 doesn't define are ignored, as its
 // §3.3 requires, so that later specifications can add some.
 func ParseRequest(body []byte) (*Request, *RequestError) {
@@ -94,8 +94,8 @@ func DecodeArgs(raw json.RawMessage, into any) error {
 }
 
 // DecodeValue decodes arbitrary JSON into Go values, keeping numbers as
-// json.Number so that values stored and later encoded again come back exactly
-// as they were sent.
+// [json.Number] so that values stored and later encoded again come back
+// exactly as they were sent.
 func DecodeValue(data []byte) (any, error) {
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.UseNumber()
@@ -109,7 +109,7 @@ func DecodeValue(data []byte) (any, error) {
 	return v, nil
 }
 
-// DecodeObject is DecodeValue restricted to a JSON object.
+// DecodeObject is [DecodeValue] restricted to a JSON object.
 func DecodeObject(data []byte) (map[string]any, error) {
 	v, err := DecodeValue(data)
 	if err != nil {
