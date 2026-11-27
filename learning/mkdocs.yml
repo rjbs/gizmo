@@ -1,0 +1,65 @@
+site_name: Learning Go from Gizmo
+site_description: >-
+  A self-guided Go curriculum for an experienced programmer, using Gizmo and
+  the JMAP servers built on it as the working examples throughout.
+
+# The 404 page can be served at any depth, so it alone needs the site's path
+# to find its style sheets, and it takes that from here.  Every other page
+# links relatively.  If the site moves, change this, or the 404 page comes
+# out unstyled.
+site_url: https://semiotic.systems/gizmo/
+use_directory_urls: true
+
+copyright: >-
+  this content generated for <a href="https://rjbs.cloud/">rjbs</a> and of
+  questionable value to anybody else
+
+# From here to the nav, this file is the same as the Jinx manual's but for
+# the primary color, so that the two look alike and can still be told
+# apart.  Change them together.
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - content.code.copy
+    - navigation.footer
+    - navigation.top
+    - toc.follow
+
+extra_css:
+  - extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+# A new unit must be added here, or it is built but appears in no menu.
+nav:
+  - Home: index.md
+  - 1. Go as a language: unit-01-go-language.md
+  - Questions & answers: questions.md
