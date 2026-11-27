@@ -13,6 +13,11 @@ The booklet is one section of Gizmo's site, which Zensical builds from
 as those of the Jinx manual (`../Jinx/doc/manual/mkdocs.yml`), except
 where `mkdocs.yml` says otherwise.
 
+The site's manual is written from the packages' doc comments by
+`cmd/godocmd`, which `doc/web/prepare` runs before every build.  Its pages are
+not committed.  A new package must be added to the Manual section of the
+`nav`, or `prepare` fails.
+
 When the user asks a question about Go, or about this code as Go, during a
 learning discussion, log it to `doc/web/docs/learning/questions.md` under
 the heading of the unit it came from, with the answer you gave, then commit
